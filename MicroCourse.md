@@ -221,6 +221,25 @@
         - [Demo - Direct Message [208]](#demo---direct-message-208)
 
 <!-- /TOC -->
+## Section 2 Intro
+### Microservice Architecture
+
+- 1 mS = responsible for 1 functionality
+- 1 mS = separate db
+
+- Product mS and db
+- Coupon mS and db
+- Shopping Cart mS and db
+- Email mS and db
+- Order mS and db
+- Rewards mS (no DB?) - track all the rewards 
+- .BET Identity microservice - responsible for auth across all the mS
+
+- tightly coupled
+
+- MVC dependency nightmare
+
+
 
 ## Section 2: Section 2 Coupon API - Getting Started
 ### Create Empty Solution [11]
