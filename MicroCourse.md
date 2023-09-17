@@ -3,6 +3,8 @@
 <!-- TOC -->
 
 - [Learn Microservices architecture with NET Core MVC NET 8, Entity Framework Core, NET Identity with Azure Service Bus](#learn-microservices-architecture-with-net-core-mvc-net-8-entity-framework-core-net-identity-with-azure-service-bus)
+    - [Section 2 Intro](#section-2-intro)
+        - [Microservice Architecture](#microservice-architecture)
     - [Section 2: Section 2 Coupon API - Getting Started](#section-2-section-2-coupon-api---getting-started)
         - [Create Empty Solution [11]](#create-empty-solution-11)
         - [Create Folder Structure [12]](#create-folder-structure-12)
@@ -242,9 +244,20 @@
 
 
 ## Section 2: Section 2 Coupon API - Getting Started
+
 ### Create Empty Solution [11]
+
 ### Create Folder Structure [12]
+
+- FrontEnd
+- Gateway
+- Integration
+- Services
+
 ### Create Coupon API [13]
+
+Swagger is embedded
+
 ### Create Coupon and CouponDTO [14]
 ### Install Nuget Packages [15]
 ### Create AppDbContext [16]
