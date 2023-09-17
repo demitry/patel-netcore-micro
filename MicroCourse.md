@@ -469,6 +469,67 @@ namespace Mango.Services.CouponAPI.Controllers
 
 ```
 ### Common Response [20]
+
+return Coupon, return List<Coupon>...  Need Common Response
+
+Common Response for API
+
+```cs
+    public class ResponseDto
+    {
+        public object? Result { get; set; }
+        public bool IsSuccess { get; set; } = true;
+        public string Message { get; set; } = string.Empty;
+    }
+```
+
+```cs
+    public class CouponApiController : ControllerBase
+    {
+        private readonly AppDbContext _db;
+        private ResponseDto _response;
+
+        public CouponApiController(AppDbContext db)
+        {
+            _db = db;
+            _response = new ResponseDto();
+        }
+        
+        [HttpGet]
+        public ResponseDto Get()
+        {
+            try
+            {
+                List<Coupon> couponList =  _db.Coupons.ToList();
+                _response.Result = couponList;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+        [HttpGet]
+        [Route("{id:int}")]
+        public ResponseDto Get(int id)
+        {
+            try
+            {
+                Coupon coupon = _db.Coupons.First(c => c.CouponId == id);
+                _response.Result = coupon;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+    }
+```
+
 ### AutoMapper [21]
 ### Coupon API CRUD Endpoints [22]
 ## Section 3: Section 3 Coupon API - CRUD
