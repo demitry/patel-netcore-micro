@@ -531,6 +531,34 @@ Common Response for API
 ```
 
 ### AutoMapper [21]
+
+```cs
+    public class MappingConfig
+    {
+        public static MapperConfiguration RegisterMaps()
+        {
+            var mappingConfig = new MapperConfiguration(config =>
+            {
+                config.CreateMap<CouponDto, Coupon>();
+                config.CreateMap<Coupon, CouponDto>();
+            });
+            return mappingConfig;
+        }
+    }
+
+```
+
+Program.cs:
+
+```cs
+...
+
+IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+...
+```
+
 ### Coupon API CRUD Endpoints [22]
 ## Section 3: Section 3 Coupon API - CRUD
 ### Create Web Project [23]
