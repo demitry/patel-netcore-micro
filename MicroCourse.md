@@ -359,6 +359,60 @@ Change connection str (LocalDb)\\DESKTOP-COMP -> .
 ```
 
 ### Seed Database [18]
+
+Seed Database = Override OnModelCreating() in AppDbContext.
+
+```cs
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder); // Later identity won't work without it!
+
+
+            modelBuilder.Entity<Coupon>().HasData(new Coupon
+            {
+                CouponId = 1,
+                CouponCode = "10OFF",
+                DiscountAmount = 10,
+                MinAmount = 20
+            });
+
+
+            modelBuilder.Entity<Coupon>().HasData(new Coupon
+            {
+                CouponId = 2,
+                CouponCode = "20OFF",
+                DiscountAmount = 20,
+                MinAmount = 40
+            });
+        }
+```
+
+Add-Migration seedCouponTables
+
+#### Automatically apply pending migrations on App Start
+
+Check if there are pending migrations and apply them.
+
+```cs
+ApplyMigrations();
+
+app.Run();
+
+
+void ApplyMigrations()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        if (_db.Database.GetPendingMigrations().Count() > 0)
+        {
+            _db.Database.Migrate();
+        }
+    }
+}
+```
+
 ### Get all and Get Coupon by ID [19]
 ### Common Response [20]
 ### AutoMapper [21]
