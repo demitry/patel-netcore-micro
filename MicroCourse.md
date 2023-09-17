@@ -736,7 +736,32 @@ MediaTypeNames.Application.Json
 ```
 
 ### Coupon Service Interface [27]
+
+
+
 ### Register Services in Program Class File [28]
+```cs
+using Mango.Web.Service.IService;
+using Mango.Web.Service;
+using Mango.Web.Utility;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<ICouponService, CouponService>();
+ServiceUrls.CouponAPIBase = builder.Configuration["ServiceUrls:CouponAPI"];
+
+builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
+
+var app = builder.Build();
+...
+```
+
 ### Endpoints in Coupon Service [29]
 ### Bootswatch Theme and Bootstrap Icons [30]
 ### Coupon Controller [31]
