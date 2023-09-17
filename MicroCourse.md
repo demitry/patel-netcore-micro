@@ -647,6 +647,11 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 ## Section 3: Section 3 Coupon API - CRUD
 ### Create Web Project [23]
 ### Create Request and Response DTO [24]
+
+Copy ResponseDto.cs and change namespace.
+
+For mS it is common: "So keeping the models isolated to their corresponding project is important when you are building microservices."
+
 ### Base Service Interface [25]
 ### Base Service Implementation [26]
 ### Coupon Service Interface [27]
