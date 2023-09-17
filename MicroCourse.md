@@ -316,7 +316,48 @@ Enables these commonly used commands:
 - Update-Database
 
 ### Create AppDbContext [16]
+
+```cs
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+
+        public DbSet<Coupon> Coupons { get; set; }
+    }
+```
+
 ### Create Coupon API Database [17]
+
+In Production - use Azure KeyVault for connection strings
+
+**Issue:**
+
+System.Globalization.CultureNotFoundException: Only the invariant culture is supported in globalization-invariant mode
+Only the invariant culture is supported in globalization-invariant mode. See https://aka.ms/GlobalizationInvariantMode for more information. (Parameter 'name')
+en-us is an invalid culture identifier.
+
+**Solution:**
+
+Set
+
+```xml
+<InvariantGlobalization>false</InvariantGlobalization>
+```
+
+**Issue:**
+
+A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SNI_PN11, error: 50 - Local Database Runtime error occurred. The specified LocalDB instance does not exist.
+
+**Solution:**
+
+Change connection str (LocalDb)\\DESKTOP-COMP -> .
+
+```json
+"DefaultConnection": "Server=.;Database=Mango_Coupon;Trusted_Connection=True;TrustServerCertificate=True"
+```
+
 ### Seed Database [18]
 ### Get all and Get Coupon by ID [19]
 ### Common Response [20]
