@@ -560,6 +560,90 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 ```
 
 ### Coupon API CRUD Endpoints [22]
+
+```cs
+        [HttpGet]
+        [Route("GetByCode/{code}")]
+        public ResponseDto GetByCode(string code)
+        {
+            try
+            {
+                Coupon coupon = _db.Coupons.First(c => c.CouponCode.ToLower() == code.ToLower());
+
+                //if FirstOrDefault() => have to check for null
+                //Coupon coupon = _db.Coupons.FirstOrDefault(c => c.CouponCode.ToLower() == code.ToLower());
+                //if(coupon == null)
+                //{
+                //    _response.IsSuccess = false;
+                //}
+
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+        [HttpPost]
+        public ResponseDto Post([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon coupon = _mapper.Map<Coupon>(couponDto);
+                _db.Coupons.Add(coupon);
+                _db.SaveChanges();
+
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+        [HttpPut]
+        public ResponseDto Put([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon coupon = _mapper.Map<Coupon>(couponDto);
+                _db.Coupons.Update(coupon);
+                _db.SaveChanges();
+
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+
+
+        [HttpDelete]
+        public ResponseDto Delete(int id)
+        {
+            try
+            {
+                Coupon coupon = _db.Coupons.First(c => c.CouponId == id);
+                _db.Coupons.Remove(coupon);
+                _db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+            return _response;
+        }
+```
+
 ## Section 3: Section 3 Coupon API - CRUD
 ### Create Web Project [23]
 ### Create Request and Response DTO [24]
