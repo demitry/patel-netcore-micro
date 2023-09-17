@@ -241,8 +241,6 @@
 
 - MVC dependency nightmare
 
-
-
 ## Section 2: Section 2 Coupon API - Getting Started
 
 ### Create Empty Solution [11]
@@ -653,7 +651,90 @@ Copy ResponseDto.cs and change namespace.
 For mS it is common: "So keeping the models isolated to their corresponding project is important when you are building microservices."
 
 ### Base Service Interface [25]
+
 ### Base Service Implementation [26]
+
+MediaTypeNames.Application.Json
+
+https://github.com/dotnet/corefx/blob/master/src/System.Net.Mail/src/System/Net/Mime/MediaTypeNames.cs
+
+MediaTypeNames  
+
+MediaTypeNames.Application.Json
+
+```cs
+            public const string Json = "application/json" 
+            ...
+
+    message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, MediaTypeNames.Application.Json);
+```
+
+```cs
+    public static class ExtensionMethods
+    {
+        public static HttpMethod ToHttpMethod(this ApiType apiType)
+        {
+            switch (apiType)
+            {
+                case ApiType.POST: return HttpMethod.Post;
+                case ApiType.DELETE: return HttpMethod.Delete;
+                case ApiType.PUT: return HttpMethod.Put;
+                default: return HttpMethod.Get;
+            }
+        }
+
+        public static async Task<ResponseDto?> ToResponseDtoAsync(this HttpResponseMessage? httpResponseMessage)
+        {
+            switch (httpResponseMessage.StatusCode)
+            {
+                case HttpStatusCode.NotFound:
+                    return new() { IsSuccess = false, Message = "Not Found" };
+                case HttpStatusCode.Forbidden:
+                    return new() { IsSuccess = false, Message = "Access Denied" };
+                case HttpStatusCode.Unauthorized:
+                    return new() { IsSuccess = false, Message = "Unauthorized" };
+                case HttpStatusCode.InternalServerError:
+                    return new() { IsSuccess = false, Message = "Internal Server Error" };
+                default:
+                    var apiContent = await httpResponseMessage.Content.ReadAsStringAsync();
+                    var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+                    return apiResponseDto;
+            }
+        }
+    }
+```
+
+```cs
+    public class BaseService : IBaseService
+    {
+        private IHttpClientFactory _httpClientFactory;
+
+        public BaseService(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<ResponseDto?> SendAsync(RequestDto requestDto)
+        {
+            HttpClient httpClient = _httpClientFactory.CreateClient("MangoApi");
+            HttpRequestMessage message = new();
+            message.Headers.Add("Accept", MediaTypeNames.Application.Json);
+            //tbd: token
+
+            message.RequestUri = new Uri(requestDto.Url);
+            if (requestDto.Data != null) // for post
+            {
+                message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data),
+                    Encoding.UTF8, MediaTypeNames.Application.Json);
+            }
+
+            message.Method = requestDto.ApiType.ToHttpMethod();
+            HttpResponseMessage? apiResponse = await httpClient.SendAsync(message);
+            return await apiResponse.ToResponseDtoAsync();
+        }
+    }
+```
+
 ### Coupon Service Interface [27]
 ### Register Services in Program Class File [28]
 ### Endpoints in Coupon Service [29]
