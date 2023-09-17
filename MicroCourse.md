@@ -256,7 +256,27 @@
 
 ### Create Coupon API [13]
 
-Swagger is embedded
+Swagger is embedded.
+
+Random port -> change to closely assigned ports
+
+Properties -> launchSettings.json
+
+Change to 7001
+
+```json
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7001;http://localhost:5118",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+```
+
+https://localhost:7001/swagger/index.html
 
 ### Create Coupon and CouponDTO [14]
 ### Install Nuget Packages [15]
