@@ -279,6 +279,15 @@ Change to 7001
 https://localhost:7001/swagger/index.html
 
 ### Create Coupon and CouponDTO [14]
+
+VS -> Color Tabs by project selected. Wow!
+
+Model and DTO
+- Model - complete object
+- DTO - props we need. 
+
+Typically return DTO while working with an API 
+
 ### Install Nuget Packages [15]
 ### Create AppDbContext [16]
 ### Create Coupon API Database [17]
