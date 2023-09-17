@@ -289,6 +289,32 @@ Model and DTO
 Typically return DTO while working with an API 
 
 ### Install Nuget Packages [15]
+
+Nugets, Checkbox [ ] Include pre-release 
+
+- AutoMapper
+- AutoMapper.Extensions.Microsoft.DependencyInjection
+- Microsoft.AspNetCore.Authentication.JwtBearer
+- Microsoft.AspNetCore.OpenApi
+- Microsoft.EntityFrameworkCore
+- Microsoft.EntityFrameworkCore.SqlServer
+- Microsoft.EntityFrameworkCore.Tools
+
+#### Entity Framework Core Tools
+Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
+
+Enables these commonly used commands:
+- Add-Migration
+- Bundle-Migration
+- Drop-Database
+- Get-DbContext
+- Get-Migration
+- Optimize-DbContext
+- Remove-Migration
+- Scaffold-DbContext
+- Script-Migration
+- Update-Database
+
 ### Create AppDbContext [16]
 ### Create Coupon API Database [17]
 ### Seed Database [18]
