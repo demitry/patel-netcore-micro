@@ -854,9 +854,38 @@ Slate Theme
 
 https://icons.getbootstrap.com/
 
-### Coupon Controller [31]
+###     
+
+Fixed "Not Found" - fixed route
+
+```cs
+    public class CouponController : Controller
+    {
+        private readonly ICouponService _couponService;
+
+        public CouponController(ICouponService couponService)
+        {
+            _couponService = couponService;
+        }
+
+        public async Task<IActionResult> CouponIndex()
+        {
+            List<CouponDto>? list = new();
+            ResponseDto? responseDto = await _couponService.GetAllCouponsAsync();
+            
+            if(responseDto != null && responseDto.IsSuccess)
+            {
+                list = JsonConvert.DeserializeObject<List<CouponDto>>(Convert.ToString(responseDto.Result));
+            }
+            return View(list);
+        }
+    }
+```
+
 ### API Call in Action [32]
+
 ### Coupon Index View [33]
+
 ### Create Coupon View [34]
 ### Create Coupon in Action [35]
 ### Delete Coupon and Error [36]
