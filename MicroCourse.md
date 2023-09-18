@@ -840,8 +840,20 @@ namespace Mango.Web.Service
 }
 
 ```
+### VS - Run Multiple projects
+
+- Solution -> Configure Startup Projects...
+- Multiple Startup Projects
+- Action = Start
 
 ### Bootswatch Theme and Bootstrap Icons [30]
+
+https://bootswatch.com/
+
+Slate Theme
+
+https://icons.getbootstrap.com/
+
 ### Coupon Controller [31]
 ### API Call in Action [32]
 ### Coupon Index View [33]
