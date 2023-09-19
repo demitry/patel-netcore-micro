@@ -17,13 +17,20 @@ namespace Mango.Web.Controllers
         public async Task<IActionResult> CouponIndex()
         {
             List<CouponDto>? list = new();
+
             ResponseDto? responseDto = await _couponService.GetAllCouponsAsync();
             
             if(responseDto != null && responseDto.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<CouponDto>>(Convert.ToString(responseDto.Result));
             }
+
             return View(list);
+        }
+
+        public async Task<IActionResult> CouponCreate()
+        {
+            return View();
         }
     }
 }
