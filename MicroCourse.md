@@ -947,6 +947,25 @@ Fixed "Not Found" - fixed route
 ```
 
 ### Create Coupon in Action [35]
+
+```cs
+        [HttpPost]
+        public async Task<IActionResult> CouponCreate(CouponDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                ResponseDto? response = await _couponService.CreateCouponAsync(model);
+
+                if (response != null && response.IsSuccess)
+                {
+                    return RedirectToAction(nameof(CouponIndex));
+                }
+            }
+
+            return View(model);
+        }
+```
+
 ### Delete Coupon and Error [36]
 ### Delete Coupon in Action [37]
 ### Toastr Notifications [38]
