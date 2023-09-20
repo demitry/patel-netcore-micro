@@ -66,7 +66,7 @@
         - [Adding Roles in Token [62]](#adding-roles-in-token-62)
         - [Validation with Login and Register [63]](#validation-with-login-and-register-63)
         - [Internal Server Error [64]](#internal-server-error-64)
-        - [Addd Authentication to Swagger Gen [65]](#addd-authentication-to-swagger-gen-65)
+        - [Add Authentication to Swagger Gen [65]](#add-authentication-to-swagger-gen-65)
         - [Passing Token to API [66]](#passing-token-to-api-66)
         - [Clean Code [67]](#clean-code-67)
         - [Roles Demo [68]](#roles-demo-68)
@@ -1346,6 +1346,101 @@ All the heavy-lifting with hashing password is done by .NET Identity
 ```
 
 ### Register in Action [47]
+
+program
+
+```cs
+builder.Services.AddScoped<IAuthService, AuthService>();
+```
+
+```cs
+        public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
+        {
+            ApplicationUser user = new ApplicationUser()
+            {
+                UserName = registrationRequestDto.Email,
+                Email = registrationRequestDto.Email,
+                NormalizedEmail = registrationRequestDto.Email.ToUpper(),
+                Name = registrationRequestDto.Name,
+                PhoneNumber = registrationRequestDto.PhoneNumber
+            };
+
+            try
+            {
+                var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
+                // All the heavy-lifting with hashing password is done by .NET Identity
+                
+                if(result.Succeeded)
+                {
+                    var userRoReturn = _db.ApplicationUsers
+                        .First(u => u.UserName == registrationRequestDto.Email);
+
+                    UserDto userDto = new UserDto()
+                    {
+                        Email = userRoReturn.Email,
+                        ID = userRoReturn.Id,
+                        Name = userRoReturn.Name,
+                        PhoneNumber = userRoReturn.PhoneNumber
+                    };
+                    return string.Empty;
+                }
+                else
+                {
+                    return result.Errors.FirstOrDefault().Description;
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+```
+
+```cs
+
+    public class AuthApiController : ControllerBase
+    {
+        private readonly IAuthService _authService;
+        protected ResponseDto _response;
+        public AuthApiController(IAuthService authService)
+        {
+            _authService = authService;
+            _response = new();
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
+        {
+            var errorMessage = await _authService.Register(model);
+            if (!errorMessage.IsNullOrEmpty())
+            {
+                _response.IsSuccess = false;
+                _response.Message = errorMessage;
+                return BadRequest(errorMessage);
+            }
+            return Ok(_response);
+        }
+        ...
+    }
+    
+```
+
+```
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/register' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "string@string.com",
+  "name": "string",
+  "phoneNumber": "string",
+  "password": "String123!",
+  "role": "string"
+}'
+```
+
 ### Login in Action [48]
 ### Generate Jwt Token [49]
 ### Token in Action [50]
