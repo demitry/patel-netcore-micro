@@ -1183,6 +1183,41 @@ namespace Mango.Services.AuthAPI.Models
 ```
 
 ### Endpoints for Login and Register [42]
+
+```cs
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Mango.Services.AuthAPI.Controllers
+{
+    [Route("api/auth")]
+    [ApiController]
+    public class AuthApiController : ControllerBase
+    {
+        [HttpPost("register")]
+        public async Task<IActionResult> Register()
+        {
+            return Ok();
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login()
+        {
+            return Ok();
+        }
+    }
+}
+
+```
+
+2 endpoints:
+
+- Mango.Services.AuthAPI 1.0 OAS3
+- https://localhost:7002/swagger/v1/swagger.json
+- AuthApi
+- POST /api/auth/register
+- POST /api/auth/login
+
 ### Add DTO's [43]
 ### Configure JwtOptions [44]
 ### IAuth Service [45]
