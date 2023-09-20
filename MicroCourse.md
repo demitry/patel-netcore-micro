@@ -1300,6 +1300,51 @@ namespace Mango.Services.AuthAPI.Service
 ```
 
 ### Register Endpoint in Auth Service [46]
+
+All the heavy-lifting with hashing password is done by .NET Identity
+
+```cs
+        public async Task<UserDto> Register(RegistrationRequestDto registrationRequestDto)
+        {
+            ApplicationUser user = new ApplicationUser()
+            {
+                UserName = registrationRequestDto.Email,
+                Email = registrationRequestDto.Email,
+                NormalizedEmail = registrationRequestDto.Email.ToUpper(),
+                Name = registrationRequestDto.Name,
+                PhoneNumber = registrationRequestDto.PhoneNumber
+            };
+
+            try
+            {
+                var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
+                // All the heavy-lifting with hashing password is done by .NET Identity
+                
+                if(result.Succeeded)
+                {
+                    var userRoReturn = _db.ApplicationUsers
+                        .First(u => u.UserName == registrationRequestDto.Email);
+
+                    UserDto userDto = new UserDto()
+                    {
+                        Email = userRoReturn.Email,
+                        ID = userRoReturn.Id,
+                        Name = userRoReturn.Name,
+                        PhoneNumber = userRoReturn.PhoneNumber
+                    };
+                    return userDto;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+            return new UserDto();
+        }
+```
+
 ### Register in Action [47]
 ### Login in Action [48]
 ### Generate Jwt Token [49]
@@ -1319,7 +1364,7 @@ namespace Mango.Services.AuthAPI.Service
 ### Adding Roles in Token [62]
 ### Validation with Login and Register [63]
 ### Internal Server Error [64]
-### Addd Authentication to Swagger Gen [65]
+### Add Authentication to Swagger Gen [65]
 ### Passing Token to API [66]
 ### Clean Code [67]
 ### Roles Demo [68]
