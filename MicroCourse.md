@@ -1224,6 +1224,42 @@ namespace Mango.Services.AuthAPI.Controllers
 - User Id will be the guid, so it will be a string, not the integer!
 
 ### Configure JwtOptions [44]
+
+- When we work with authentication, we deal with creating JWT token.
+- It is used to validate a user that has logged in.
+- Login Response has Token
+- That token generated with the help of a secret key.
+
+Settings to configure:
+
+```json
+  "ApiSettings": {
+    "JwtOptions": {
+      "Secret": "THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET",
+      "Issuer": "mango-auth-api",
+      "Audience": "mango-client"
+    }
+  }
+```
+
+- Can access it with the Configuration object
+- Or config like that:
+
+```cs
+
+    public class JwtOptions
+    {
+        public string Secret { get; set; } = string.Empty;
+        public string Issuer { get; set; } = string.Empty;
+        public string Audience { get; set; } = string.Empty;
+    }
+
+// And in Program.cs:
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection($"ApiSettings:{nameof(JwtOptions)}"));
+
+```
+
 ### IAuth Service [45]
 ### Register Endpoint in Auth Service [46]
 ### Register in Action [47]
