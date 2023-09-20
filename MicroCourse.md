@@ -1219,6 +1219,10 @@ namespace Mango.Services.AuthAPI.Controllers
 - POST /api/auth/login
 
 ### Add DTO's [43]
+
+- We don't need all db properties in the UserDto
+- User Id will be the guid, so it will be a string, not the integer!
+
 ### Configure JwtOptions [44]
 ### IAuth Service [45]
 ### Register Endpoint in Auth Service [46]
