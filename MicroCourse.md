@@ -1082,8 +1082,59 @@ Don't forget to include after the @RenderBody()
 ```
 
 ## Section 4: Section 4 Auth API
+
 ### Create Auth API and NuGet Packages [39]
+
+```cs
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+```
+
 ### Add DbContext and Create Identity Tables [40]
+
+- launchSettings.json - change port number
+- Copy Data folder, update namespace
+- Microsoft.AspNetCore.Identity.EntityFrameworkCore
+- Remove InvariantGlobalization true from project
+- Set Connection String in appsettinigs.json: 
+  - "DefaultConnection": "Server=.;Database=Mango_Auth;Trusted_Connection=True;TrustServerCertificate=True"
+- Use IdentityDbContext, not DbContext:
+- IdentityDbContext < IdentityUser > :
+- Add-Migration addIdentityTables
+- Update-Database
+- Check the Mango_Auth Database
+
+```cs
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+namespace Mango.Services.AuthAPI.Data
+{
+    public class AppDbContext : IdentityDbContext<IdentityUser>
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
+
+```
+
 ### Add Custom Properties to User Table [41]
 ### Endpoints for Login and Register [42]
 ### Add DTO's [43]
