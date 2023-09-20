@@ -1072,6 +1072,15 @@ Fixed "Not Found" - fixed route
 We will not update the coupon. Why? We'll see later.
 
 ### Toastr Notifications [38]
+
+Don't forget to include after the @RenderBody()
+```cs
+        <main role="main" class="pb-3">
+            @RenderBody()
+            <partial name="_Notifications" />
+        </main>
+```
+
 ## Section 4: Section 4 Auth API
 ### Create Auth API and NuGet Packages [39]
 ### Add DbContext and Create Identity Tables [40]
