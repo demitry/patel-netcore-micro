@@ -1442,6 +1442,80 @@ curl -X 'POST' \
 ```
 
 ### Login in Action [48]
+
+```cs
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+
+            if(user == null)
+            {
+                return new LoginResponseDto() { User = null, Token = string.Empty };
+            }
+
+            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+            if(!isValid)
+            {
+                return new LoginResponseDto() { User = null, Token = string.Empty };
+            }
+
+            // If user was found and password OK, generate JWT token
+
+            UserDto userDto = new()
+            {
+                Email = user.Email,
+                ID = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            LoginResponseDto loginResponseDto = new()
+            {
+                User = userDto,
+                Token = "" //todo: Generate
+            };
+
+            return loginResponseDto;
+        }
+```
+
+```cs
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
+        {
+            var loginResponse = await _authService.Login(model);
+
+            if(loginResponse.User == null)
+            {
+                _response.IsSuccess = false;
+                _response.Message = "Username or password is incorrect";
+                return BadRequest(loginResponse);
+            }
+            return Ok(_response);
+        }
+```
+
+
+```
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/login' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "string@string.com",
+  "password": "String123!"
+}'
+
+Response:
+{
+  "result": null,
+  "isSuccess": true,
+  "message": ""
+}
+
+```
+
 ### Generate Jwt Token [49]
 ### Token in Action [50]
 ### Assign Role [51]
