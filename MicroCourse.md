@@ -11,9 +11,11 @@
         - [Create Coupon API [13]](#create-coupon-api-13)
         - [Create Coupon and CouponDTO [14]](#create-coupon-and-coupondto-14)
         - [Install Nuget Packages [15]](#install-nuget-packages-15)
+            - [Entity Framework Core Tools](#entity-framework-core-tools)
         - [Create AppDbContext [16]](#create-appdbcontext-16)
         - [Create Coupon API Database [17]](#create-coupon-api-database-17)
         - [Seed Database [18]](#seed-database-18)
+            - [Automatically apply pending migrations on App Start](#automatically-apply-pending-migrations-on-app-start)
         - [Get all and Get Coupon by ID [19]](#get-all-and-get-coupon-by-id-19)
         - [Common Response [20]](#common-response-20)
         - [AutoMapper [21]](#automapper-21)
@@ -26,8 +28,9 @@
         - [Coupon Service Interface [27]](#coupon-service-interface-27)
         - [Register Services in Program Class File [28]](#register-services-in-program-class-file-28)
         - [Endpoints in Coupon Service [29]](#endpoints-in-coupon-service-29)
+        - [VS - Run Multiple projects](#vs---run-multiple-projects)
         - [Bootswatch Theme and Bootstrap Icons [30]](#bootswatch-theme-and-bootstrap-icons-30)
-        - [Coupon Controller [31]](#coupon-controller-31)
+        - [](#)
         - [API Call in Action [32]](#api-call-in-action-32)
         - [Coupon Index View [33]](#coupon-index-view-33)
         - [Create Coupon View [34]](#create-coupon-view-34)
@@ -967,7 +970,107 @@ Fixed "Not Found" - fixed route
 ```
 
 ### Delete Coupon and Error [36]
+
+```cs
+        public async Task<IActionResult> CouponDelete(int couponId)
+        {
+            ResponseDto? response = await _couponService.GetCouponByIdAsync(couponId);
+
+            if (response != null && response.IsSuccess)
+            {
+                CouponDto? model = JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(response.Result));
+                return View(model);
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CouponDelete(CouponDto couponDto)
+        {
+            ResponseDto? response = await _couponService.DeleteCouponAsync(couponDto.CouponId);
+
+            if (response != null && response.IsSuccess)
+            {
+                return RedirectToAction(nameof(CouponIndex));
+            }
+
+            return View(couponDto);
+        }
+```
+
+```cs
+@model CouponDto
+
+<form asp-action="CouponDelete">
+    <br />
+    <div class="container border p-3">
+        <h1 class="text-white text-center">Delete Coupon</h1>
+        <input asp-for="CouponId" hidden />
+        <hr />
+        <div class="row">
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;"> Coupon Code</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="CouponCode" disabled class="form-control" />
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Discount Amount</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="DiscountAmount" disabled class="form-control" />
+            </div>
+            <div class="col-2">
+                <label class="control-label pt-2" style="font-size:20px;">Minimum Amount</label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="MinAmount" disabled class="form-control" />
+            </div>
+
+            <div class="col-5 offset-2">
+                <a asp-action="CouponIndex" class="btn-primary btn form-control ">Back to List</a>
+            </div>
+            <div class="col-5">
+                <input type="submit" value="Delete" class="btn btn-danger form-control" />
+            </div>
+        </div>
+    </div>
+</form>
+```
+
 ### Delete Coupon in Action [37]
+
+```cs
+        public async Task<IActionResult> CouponDelete(int couponId)
+        {
+            ResponseDto? response = await _couponService.GetCouponByIdAsync(couponId);
+
+            if (response != null && response.IsSuccess)
+            {
+                CouponDto? model = JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(response.Result));
+                return View(model);
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CouponDelete(CouponDto couponDto)
+        {
+            ResponseDto? response = await _couponService.DeleteCouponAsync(couponDto.CouponId);
+
+            if (response != null && response.IsSuccess)
+            {
+                return RedirectToAction(nameof(CouponIndex));
+            }
+
+            return View(couponDto);
+        }
+```
+
+We will not update the coupon. Why? We'll see later.
+
 ### Toastr Notifications [38]
 ## Section 4: Section 4 Auth API
 ### Create Auth API and NuGet Packages [39]
