@@ -1136,6 +1136,52 @@ namespace Mango.Services.AuthAPI.Data
 ```
 
 ### Add Custom Properties to User Table [41]
+
+```sql
+SELECT TOP (1000) [Id]
+      ,[UserName]
+      ,[NormalizedUserName]
+      ,[Email]
+      ,[NormalizedEmail]
+      ,[EmailConfirmed]
+      ,[PasswordHash]
+      ,[SecurityStamp]
+      ,[ConcurrencyStamp]
+      ,[PhoneNumber]
+      ,[PhoneNumberConfirmed]
+      ,[TwoFactorEnabled]
+      ,[LockoutEnd]
+      ,[LockoutEnabled]
+      ,[AccessFailedCount]
+  FROM [Mango_Auth].[dbo].[AspNetUsers]
+```
+
+Want more properties ?
+
+- Change Identity User to Application User
+ - define class ApplicationUser : IdentityUser
+ - in AppDBContext
+ - in Program
+- You might been thinking that it will create new table "ApplicationUser"
+- But EF is smart
+- Application user is extending the identity user
+- EF will add 1 more column.
+- Add-Migration addNameToAspNetUsers
+- Update-Database
+
+```cs
+using Microsoft.AspNetCore.Identity;
+
+namespace Mango.Services.AuthAPI.Models
+{
+    public class ApplicationUser : IdentityUser
+    {
+        public string Name { get; set; }
+    }
+}
+
+```
+
 ### Endpoints for Login and Register [42]
 ### Add DTO's [43]
 ### Configure JwtOptions [44]
