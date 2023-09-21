@@ -1523,6 +1523,7 @@ JwtTokenGenerator.cs:
 ```cs
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.Service.IService;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -1534,9 +1535,9 @@ namespace Mango.Services.AuthAPI.Service
     {
         private readonly JwtOptions _jwtOptions;
 
-        public JwtTokenGenerator(JwtOptions jwtOptions)
+        public JwtTokenGenerator(IOptions<JwtOptions> jwtOptions)
         {
-            _jwtOptions = jwtOptions;
+            _jwtOptions = jwtOptions.Value;
         }
 
         public string GenerateToken(ApplicationUser applicationUser)
@@ -1568,9 +1569,112 @@ namespace Mango.Services.AuthAPI.Service
     }
 }
 
+
 ```
 
 ### Token in Action [50]
+
+#### Use Token Code - Login Code
+
+```cs
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => 
+                u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+
+            if(user == null)
+            {
+                return new LoginResponseDto() { User = null, Token = string.Empty };
+            }
+
+            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+            if(!isValid)
+            {
+                return new LoginResponseDto() { User = null, Token = string.Empty };
+            }
+
+            // If user was found and password is OK, generate JWT token
+            var token = _jwtTokenGenerator.GenerateToken(user);
+
+            UserDto userDto = new()
+            {
+                Email = user.Email,
+                ID = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            LoginResponseDto loginResponseDto = new()
+            {
+                User = userDto,
+                Token = token
+            };
+
+            return loginResponseDto;
+        }
+```
+
+#### Request
+
+https://localhost:7002/api/auth/login
+
+```cs
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/login' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "string@string.com",
+  "password": "String123!"
+}'
+```
+
+#### Response
+
+{
+  "result": {
+    "user": {
+      "id": "12e98410-a56d-4f95-ad1c-3d0e8b069fc9",
+      "email": "string@string.com",
+      "name": "string",
+      "phoneNumber": "string"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN0cmluZ0BzdHJpbmcuY29tIiwic3ViIjoiMTJlOTg0MTAtYTU2ZC00Zjk1LWFkMWMtM2QwZThiMDY5ZmM5IiwibmFtZSI6InN0cmluZ0BzdHJpbmcuY29tIiwibmJmIjoxNjk1Mjc1Nzg5LCJleHAiOjE2OTU4ODA1ODksImlhdCI6MTY5NTI3NTc4OSwiaXNzIjoibWFuZ28tYXV0aC1hcGkiLCJhdWQiOiJtYW5nby1jbGllbnQifQ.40VBe2_1kM4MYFaIjP1i0E84Oad6osm1wQI3PD4N8tU"
+  },
+  "isSuccess": true,
+  "message": ""
+}
+
+#### Token
+
+https://jwt.io/
+
+Decoded:
+
+- Header:
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+- PAYLOAD:
+
+```json
+{
+  "email": "string@string.com",
+  "sub": "12e98410-a56d-4f95-ad1c-3d0e8b069fc9",
+  "name": "string@string.com",
+  "nbf": 1695275789,
+  "exp": 1695880589,
+  "iat": 1695275789,
+  "iss": "mango-auth-api",
+  "aud": "mango-client"
+}
+
+```
 
 ### Assign Role [51]
 
