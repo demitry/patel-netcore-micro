@@ -1769,8 +1769,11 @@ curl -X 'POST' \
 Db is OK
 
 ## Section 5: Section 5 Consuming Auth API
+
 ### Add DTO's in Web Project [52]
+
 ### Auth Service in Web Project [53]
+
 ### Auth Controller in Web Project [54]
 ### Login and Register UI [55]
 ### Dropdown for Role [56]
