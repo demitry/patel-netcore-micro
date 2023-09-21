@@ -1860,6 +1860,33 @@ String123!
 
 ### Login in Action [58]
 
+```cs
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
+        {
+            ResponseDto responseDto = await _authService.LoginAsync(loginRequestDto);
+
+            if (responseDto != null && responseDto.IsSuccess)
+            {
+                LoginResponseDto loginResponseDto =
+                    JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError("CustomError", responseDto.Message);
+                return View(loginRequestDto);
+            }
+        }
+```
+
+Fixed issue with login bad request.
+
+```cs
+                case HttpStatusCode.BadRequest:
+                    return new() { IsSuccess = false, Message = "Bad Request" };
+```
 
 
 ### Token Provider Services [59]

@@ -3,6 +3,7 @@ using Mango.Web.Service.IService;
 using Mango.Web.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 
 namespace Mango.Web.Controllers
 {
@@ -22,7 +23,26 @@ namespace Mango.Web.Controllers
             return View(loginRequestDto);
         }
 
-        void PopulateViewBagRoleList()
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
+        {
+            ResponseDto responseDto = await _authService.LoginAsync(loginRequestDto);
+
+            if (responseDto != null && responseDto.IsSuccess)
+            {
+                LoginResponseDto loginResponseDto =
+                    JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError("CustomError", responseDto.Message);
+                return View(loginRequestDto);
+            }
+        }
+
+        private void PopulateViewBagRoleList()
         {
             ViewBag.RoleList = new List<SelectListItem>()
             {
