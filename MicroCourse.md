@@ -1779,6 +1779,31 @@ Db is OK
 ### Login and Register UI [55]
 
 ### Dropdown for Role [56]
+
+Via ViewBag:
+
+```cs
+[HttpGet]
+public IActionResult Register()
+{
+    var roleList = new List<SelectListItem>()
+    {
+        new SelectListItem{ Text = AppRole.Admin, Value = AppRole.Admin },
+        new SelectListItem{ Text = AppRole.Customer, Value = AppRole.Customer }
+    };
+    ViewBag.RoleList = roleList;
+    return View();
+}
+```
+
+```cs
+<div class="col-12 col-md-6 offset-md-3 pb-2">
+    <select asp-for="Role" class="form-select" asp-items="@ViewBag.RoleList">
+        <option disabled selected>--Select Role--</option>
+    </select>
+</div>
+```
+
 ### Register in Action with Role [57]
 ### Login in Action [58]
 ### Token Provider Services [59]
