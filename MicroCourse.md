@@ -1805,7 +1805,63 @@ public IActionResult Register()
 ```
 
 ### Register in Action with Role [57]
+
+```cs
+        void PopulateViewBagRoleList()
+        {
+            ViewBag.RoleList = new List<SelectListItem>()
+            {
+                new SelectListItem{ Text = AppRole.Admin, Value = AppRole.Admin },
+                new SelectListItem{ Text = AppRole.Customer, Value = AppRole.Customer }
+            };
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            PopulateViewBagRoleList();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegistrationRequestDto registerDto)
+        {
+            ResponseDto result = await _authService.RegisterAsync(registerDto);
+
+            ResponseDto assignRoleDto;
+
+            if (result != null && result.IsSuccess)
+            {
+                if (string.IsNullOrEmpty(registerDto.Role))
+                {
+                    registerDto.Role = AppRole.Customer;
+                }
+
+                assignRoleDto = await _authService.AssignRoleAsync(registerDto);
+
+                if (assignRoleDto != null && assignRoleDto.IsSuccess)
+                {
+                    TempData["success"] = "Registration Successful";
+                    return RedirectToAction(nameof(Login));
+                }
+            }
+
+            PopulateViewBagRoleList();
+
+            return View(registerDto);
+        }
+
+```
+
+string2@string.com
+
+String123!
+
 ### Login in Action [58]
+
+
+
 ### Token Provider Services [59]
 ### Sign in a user in .NET Identity [60]
 ### Logout in Action [61]
