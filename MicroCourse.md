@@ -1922,6 +1922,72 @@ namespace Mango.Web.Service
 ```
 
 ### Sign in a user in .NET Identity [60]
+
+```cs
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
+        {
+            ResponseDto responseDto = await _authService.LoginAsync(loginRequestDto);
+
+            if (responseDto != null && responseDto.IsSuccess)
+            {
+                LoginResponseDto loginResponseDto = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
+
+                await SignInUser(loginResponseDto);  // SIGN-IN
+
+                _tokenProvider.SetToken(loginResponseDto.Token);
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError("CustomError", responseDto.Message);
+                return View(loginRequestDto);
+            }
+        }
+```
+
+```cs
+        private async Task SignInUser(LoginResponseDto loginResponseDto)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwt = tokenHandler.ReadJwtToken(loginResponseDto.Token);
+            
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Email, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Email).Value),
+                new Claim(JwtRegisteredClaimNames.Sub, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value),
+                new Claim(JwtRegisteredClaimNames.Name, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Name).Value),
+            };
+         
+            identity.AddClaims(claims);
+
+            var principal = new ClaimsPrincipal(identity);
+            
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+```
+
+DO NOT FORGET
+
+Program:
+
+```cs
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromHours(10);
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied"; //TODO: Add this page
+    });
+
+...
+
+app.UseAuthentication();
+```
+
 ### Logout in Action [61]
 ### Adding Roles in Token [62]
 ### Validation with Login and Register [63]
