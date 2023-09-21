@@ -24,17 +24,17 @@ namespace Mango.Services.AuthAPI.Service
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            var user = _db.ApplicationUsers.FirstOrDefault(u => 
+            var user = _db.ApplicationUsers.FirstOrDefault(u =>
                 u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
 
-            if(user == null)
+            if (user == null)
             {
                 return new LoginResponseDto() { User = null, Token = string.Empty };
             }
 
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
-            if(!isValid)
+            if (!isValid)
             {
                 return new LoginResponseDto() { User = null, Token = string.Empty };
             }
@@ -74,8 +74,8 @@ namespace Mango.Services.AuthAPI.Service
             {
                 var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
                 // All the heavy-lifting with hashing password is done by .NET Identity
-                
-                if(result.Succeeded)
+
+                if (result.Succeeded)
                 {
                     var userRoReturn = _db.ApplicationUsers
                         .First(u => u.UserName == registrationRequestDto.Email);
@@ -100,6 +100,31 @@ namespace Mango.Services.AuthAPI.Service
 
                 throw;
             }
+        }
+
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            bool roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                var createResult = _roleManager.CreateAsync(new IdentityRole(roleName));
+                
+                if(!createResult.Result.Succeeded)
+                { 
+                    return false; 
+                }
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+
+            return result.Succeeded;
         }
     }
 }

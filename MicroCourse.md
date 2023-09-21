@@ -1678,6 +1678,96 @@ Decoded:
 
 ### Assign Role [51]
 
+AspNetRoles, AspNetUserRoles tables
+
+#### Populate Roles on login (AspNetRoles) Assign Role (AspNetUserRoles)
+
+Auth Service:
+
+```cs
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            bool roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                var createResult = _roleManager.CreateAsync(new IdentityRole(roleName));
+                
+                if(!createResult.Result.Succeeded)
+                { 
+                    return false; 
+                }
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+
+            return result.Succeeded;
+        }
+```
+Controller:
+```cs
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRole([FromBody] RegistrationRequestDto model)
+        {
+            bool roleAssigned = await _authService.AssignRole(model.Email, model.Role.ToUpper());
+
+            if (!roleAssigned)
+            {
+                _response.IsSuccess = false;
+                _response.Message = "Error occurred. Cannot Assign Role";
+                return BadRequest(_response);
+            }
+
+            return Ok(_response);
+        }
+```
+
+#### Test
+
+string1@string.com
+
+String123!
+
+##### Request
+
+{
+  "email": "string1@string.com",
+  "name": "string",
+  "phoneNumber": "string",
+  "password": "String123!",
+  "role": "Admin"
+}
+
+```
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/AssignRole' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "string1@string.com",
+  "name": "string",
+  "phoneNumber": "string",
+  "password": "String123!",
+  "role": "Admin"
+}'
+```
+
+##### Response
+```
+{
+  "result": null,
+  "isSuccess": true,
+  "message": ""
+}
+```
+Db is OK
+
 ## Section 5: Section 5 Consuming Auth API
 ### Add DTO's in Web Project [52]
 ### Auth Service in Web Project [53]
