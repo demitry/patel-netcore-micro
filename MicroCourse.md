@@ -1989,6 +1989,17 @@ app.UseAuthentication();
 ```
 
 ### Logout in Action [61]
+
+```cs
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            _tokenProvider.ClearToken();
+
+            return RedirectToAction("Index", "Home");
+        }
+```
+
 ### Adding Roles in Token [62]
 ### Validation with Login and Register [63]
 ### Internal Server Error [64]
