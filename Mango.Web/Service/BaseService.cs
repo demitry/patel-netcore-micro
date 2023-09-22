@@ -9,7 +9,7 @@ namespace Mango.Web.Service
 {
     public class BaseService : IBaseService
     {
-        private IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public BaseService(IHttpClientFactory httpClientFactory)
         {
@@ -31,7 +31,7 @@ namespace Mango.Web.Service
             }
 
             message.Method = requestDto.ApiType.ToHttpMethod();
-            HttpResponseMessage? apiResponse = await httpClient.SendAsync(message);
+            HttpResponseMessage apiResponse = await httpClient.SendAsync(message);
             return await apiResponse.ToResponseDtoAsync();
         }
     }
