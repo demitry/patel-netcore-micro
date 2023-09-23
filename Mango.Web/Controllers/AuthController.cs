@@ -47,7 +47,7 @@ namespace Mango.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError("CustomError", responseDto.Message);
+                TempData[Constant.Error] = responseDto.Message;
                 return View(loginRequestDto);
             }
         }
@@ -87,9 +87,13 @@ namespace Mango.Web.Controllers
 
                 if (assignRoleDto != null && assignRoleDto.IsSuccess)
                 {
-                    TempData["success"] = "Registration Successful";
+                    TempData[Constant.Success] = "Registration Successful";
                     return RedirectToAction(nameof(Login));
                 }
+            }
+            else
+            {
+                TempData[Constant.Error] = result.Message;
             }
 
             PopulateViewBagRoleList();

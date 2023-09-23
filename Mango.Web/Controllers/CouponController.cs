@@ -1,5 +1,6 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Service.IService;
+using Mango.Web.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -26,7 +27,7 @@ namespace Mango.Web.Controllers
             }
             else
             {
-                TempData["error"] = responseDto?.Message;
+                TempData[Constant.Error] = responseDto?.Message;
             }
 
             return View(list);
@@ -46,12 +47,12 @@ namespace Mango.Web.Controllers
 
                 if (response != null && response.IsSuccess)
                 {
-                    TempData["success"] = "Coupon created successfully";
+                    TempData[Constant.Success] = "Coupon created successfully";
                     return RedirectToAction(nameof(CouponIndex));
                 }
                 else
                 {
-                    TempData["error"] = response?.Message;
+                    TempData[Constant.Error] = response?.Message;
                 }
             }
 
@@ -69,7 +70,7 @@ namespace Mango.Web.Controllers
             }
             else
             {
-                TempData["error"] = response?.Message;
+                TempData[Constant.Error] = response?.Message;
             }
 
             return NotFound();
@@ -82,12 +83,12 @@ namespace Mango.Web.Controllers
 
             if (response != null && response.IsSuccess)
             {
-                TempData["success"] = "Coupon deleted successfully";
+                TempData[Constant.Success] = "Coupon deleted successfully";
                 return RedirectToAction(nameof(CouponIndex));
             }
             else
             {
-                TempData["error"] = response?.Message;
+                TempData[Constant.Error] = response?.Message;
             }
 
             return View(couponDto);

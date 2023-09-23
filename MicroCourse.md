@@ -2019,7 +2019,15 @@ string3@string.com
 Test123!
 ```
 
+- No connection could be made because the target machine actively refused it. (localhost:7002)
+- Service is not run 
+- VS -> SLN -> Configure Startup Projects.
+
 ### Validation with Login and Register [63]
+
+- [ ] Why I have Bad Request While Register with fake data?
+	- [ ] Why is this error has no reason data?
+    
 ### Internal Server Error [64]
 ### Add Authentication to Swagger Gen [65]
 ### Passing Token to API [66]
