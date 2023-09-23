@@ -2029,6 +2029,58 @@ Test123!
 	- [ ] Why is this error has no reason data?
     
 ### Internal Server Error [64]
+
+Add Authorize to  CouponApiController => Internal Server Error
+
+- Why "Internal Server Error" and not auth error?
+- In the Coupon API the auth is not defined.
+
+app.UseAuthentication();
+
+before the 
+
+app.UseAuthorization();
+
+When we authenticating, we validating 3 thing:
+
+- Secret
+- Issuer
+- Audience
+
+We will validate our token using 3 of them.
+
+```cs
+var settingsSection = builder.Configuration.GetSection("ApiSettings");
+
+var secret = settingsSection.GetValue<string>("Secret");
+var issuer = settingsSection.GetValue<string>("Issuer");
+var audience = settingsSection.GetValue<string>("Audience");
+
+var key = Encoding.ASCII.GetBytes(secret);
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // "Bearer"
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    // When we validating the token, validation parameters are:
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        ValidateAudience = true
+    };
+});
+
+builder.Services.AddAuthorization();
+```
+
+So Now we have "Unauthorized" and not "Internal Server Error"
+
 ### Add Authentication to Swagger Gen [65]
 ### Passing Token to API [66]
 ### Clean Code [67]
