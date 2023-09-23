@@ -2279,6 +2279,9 @@ public static class WebApplicationBuilderExtensions
 ```
 
 ### Roles Demo [68]
+
+Add Authorize(Roles = $"{AppRole.Admin}") for PUT, DELETE and POST
+
 ## Section 6: Section 6 Product API
 ### Product API Base Setup [69]
 ### Assignment Product API [70]
