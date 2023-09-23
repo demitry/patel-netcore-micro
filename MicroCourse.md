@@ -2212,6 +2212,28 @@ ok
 
 
 ### Passing Token to API [66]
+
+if we login or register we go without token, otherwise
+
+we pass the token
+
+```cs
+        public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
+        {
+            try
+            {
+                HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
+                HttpRequestMessage message = new();
+                message.Headers.Add("Accept", "application/json");
+                //token
+                if (withBearer)
+                {
+                    var token = _tokenProvider.GetToken();
+                    message.Headers.Add("Authorization", $"Bearer {token}");
+                }
+                ...
+```
+
 ### Clean Code [67]
 ### Roles Demo [68]
 ## Section 6: Section 6 Product API
