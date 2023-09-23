@@ -2082,6 +2082,135 @@ builder.Services.AddAuthorization();
 So Now we have "Unauthorized" and not "Internal Server Error"
 
 ### Add Authentication to Swagger Gen [65]
+
+We cannot authorize through the Swagger UI for the moment
+
+
+```cs
+using Microsoft.OpenApi.Models;
+
+...
+
+builder.Services.AddSwaggerGen(option =>
+{
+    option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme //"Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference= new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            }, new string[]{}
+        }
+    });
+});
+
+```
+
+Note, "Authorize" button on Mango.Services.CouponAPI Swagger UI
+
+Register admin
+
+```
+{
+  "email": "admin@gmail.com",
+  "name": "Admin",
+  "phoneNumber": "+380679307850",
+  "password": "Admin123!",
+  "role": "Admin"
+}
+
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/register' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "admin@gmail.com",
+  "name": "Admin",
+  "phoneNumber": "+380679307850",
+  "password": "Admin123!",
+  "role": "Admin"
+}'
+```
+
+Login
+
+```
+curl -X 'POST' \
+  'https://localhost:7002/api/auth/login' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "userName": "admin@gmail.com",
+  "password": "Admin123!"
+}'
+```
+
+```
+{
+  "result": {
+    "user": {
+      "id": "45da03c0-4e8a-40d5-afcd-cb226ec3e09b",
+      "email": "admin@gmail.com",
+      "name": "Admin",
+      "phoneNumber": "+380679307850"
+    },
+    "token": "eyJhb ... 67Uw"
+  },
+  "isSuccess": true,
+  "message": ""
+}
+```
+
+Authorize with token in the Coupon API
+
+```
+curl -X 'GET' \
+  'https://localhost:7001/api/coupon' \
+  -H 'accept: text/plain' \
+  -H 'Authorization: Bearer eyJhbG...aUOSr-VY'
+
+{
+  "result": [
+    {
+      "couponId": 1,
+      "couponCode": "10OFF",
+      "discountAmount": 10,
+      "minAmount": 20
+    },
+    {
+      "couponId": 2,
+      "couponCode": "20OFF",
+      "discountAmount": 20,
+      "minAmount": 40
+    },
+    {
+      "couponId": 6,
+      "couponCode": "23",
+      "discountAmount": 23,
+      "minAmount": 23
+    }
+  ],
+  "isSuccess": true,
+  "message": ""
+}
+
+```
+
+ok
+
+
 ### Passing Token to API [66]
 ### Clean Code [67]
 ### Roles Demo [68]
