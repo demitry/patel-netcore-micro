@@ -2288,6 +2288,20 @@ Add Authorize(Roles = $"{AppRole.Admin}") for PUT, DELETE and POST
 ### Assignment Product API in Action [71]
 ### Assignment - Consuming Product API Part 1 [72]
 ### Assignment - Consuming Product API Part 2 [73]
+
+```
+2023-09-23
+To speed-up, I'll merge Sections 7-9 (I learned this stuff in MVC course):
+I finished code 69-73, Section 6
+I am going to merge 3 sections: 
+- [ ] Section 7: Section 7 Home Page and Details           ------ Copy/Merge Code to Speed Up 
+- [ ] Section 8: Section 8 Shopping Cart                   ------ Copy/Merge Code to Speed Up 
+- [ ] Section 9: Section 9 Shopping Cart in Web Project    ------ Copy/Merge Code to Speed Up 
+
+- [ ] So I will create separate branches for that task
+branchForMergeSections789  <- branchPatelEndSections9
+```
+
 ## Section 7: Section 7 Home Page and Details
 ### Home Controller Index Action [74]
 ### Home Page UI [75]
