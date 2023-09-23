@@ -40,9 +40,9 @@ namespace Mango.Web.Controllers
                 LoginResponseDto loginResponseDto = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
 
                 await SignInUser(loginResponseDto);
-
+                
                 _tokenProvider.SetToken(loginResponseDto.Token);
-
+                
                 return RedirectToAction("Index", "Home");
             }
             else
@@ -118,10 +118,12 @@ namespace Mango.Web.Controllers
                 new Claim(JwtRegisteredClaimNames.Email, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Email).Value),
                 new Claim(JwtRegisteredClaimNames.Sub, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value),
                 new Claim(JwtRegisteredClaimNames.Name, jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Name).Value),
+                new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value),
+                new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value) // NB! Without this claim type the User will be null, in _Layout, User.Identity.Name
             };
-         
-            identity.AddClaims(claims);
 
+            identity.AddClaims(claims);
+            
             var principal = new ClaimsPrincipal(identity);
             
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);

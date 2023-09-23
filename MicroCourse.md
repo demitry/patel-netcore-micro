@@ -51,7 +51,15 @@
         - [Login in Action [48]](#login-in-action-48)
         - [Generate Jwt Token [49]](#generate-jwt-token-49)
         - [Token in Action [50]](#token-in-action-50)
+            - [Use Token Code - Login Code](#use-token-code---login-code)
+            - [Request](#request)
+            - [Response](#response)
+            - [Token](#token)
         - [Assign Role [51]](#assign-role-51)
+            - [Populate Roles on login AspNetRoles Assign Role AspNetUserRoles](#populate-roles-on-login-aspnetroles-assign-role-aspnetuserroles)
+            - [Test](#test)
+                - [Request](#request)
+                - [Response](#response)
     - [Section 5: Section 5 Consuming Auth API](#section-5-section-5-consuming-auth-api)
         - [Add DTO's in Web Project [52]](#add-dtos-in-web-project-52)
         - [Auth Service in Web Project [53]](#auth-service-in-web-project-53)
@@ -2001,6 +2009,16 @@ app.UseAuthentication();
 ```
 
 ### Adding Roles in Token [62]
+
+- Having role in the token is CRITICAL when we work with Authorization
+- Add on the API level
+- It is possible to have multiple roles
+
+```
+string3@string.com
+Test123!
+```
+
 ### Validation with Login and Register [63]
 ### Internal Server Error [64]
 ### Add Authentication to Swagger Gen [65]
