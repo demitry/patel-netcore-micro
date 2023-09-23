@@ -113,14 +113,15 @@ namespace Mango.Web.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwt = tokenHandler.ReadJwtToken(loginResponseDto.Token);
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-            identity = PopulateIdentityWithJwtClaims(identity, jwt);
+            var identity = CreateClaimsIdentityBasedOnJwt(jwt);
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
-        private ClaimsIdentity PopulateIdentityWithJwtClaims(ClaimsIdentity identity, JwtSecurityToken jwt)
+        private ClaimsIdentity CreateClaimsIdentityBasedOnJwt(JwtSecurityToken jwt)
         {
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+            
             var emailClaim = jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Email)?.Value;
             if (emailClaim != null)
             {
