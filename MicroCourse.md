@@ -2588,6 +2588,39 @@ After that will be able to include all projects into the Run config!
 - Azure Service Bus, Rabbit MQ.
 
 ### Create Service Bus in Azure [102]
+
+#### Abbreviations
+[Abbreviation examples for Azure resources](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)
+
+|Resource|Resource provider namespace|Abbreviation|
+|---|---|---|
+|API management service instance|`Microsoft.ApiManagement/service`|`apim`|
+|Integration account|`Microsoft.Logic/integrationAccounts`|`ia`|
+|Logic apps|`Microsoft.Logic/workflows`|`logic`|
+|Service Bus namespace|`Microsoft.ServiceBus/namespaces`|`sbns`|
+|Service Bus queue|`Microsoft.ServiceBus/namespaces/queues`|`sbq`|
+|Service Bus topic|`Microsoft.ServiceBus/namespaces/topics`|`sbt`|
+|Service Bus topic subscription|`Microsoft.ServiceBus/namespaces/topics/subscriptions`|`sbts`|
+
+
+#### Steps
+
+- Azure -> Service Bus -> Create 
+- resource group: rg-mango-live
+- Namespace name: mango-web
+- Namespace name: mango-web.servicebus.windows.net
+- Location
+- Pricing
+- Basic - super cheap, with limitations
+  - Queues
+- Standard
+  - Queues
+  - Topics
+  - Messaging ops
+  - Variable pricing
+- We need  Topics, so choose Standard
+- Review + Create
+
 ### Create Queue in Service Bus [103]
 ### MessageBus Interface [104]
 ### MessageBus Implementation [105]
