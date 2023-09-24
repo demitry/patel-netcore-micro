@@ -2577,7 +2577,16 @@ After that will be able to include all projects into the Run config!
 ```
 
 ## Section 10: Section 10 Service Bus
+
 ### Service Bus in our Architecture [101]
+
+- Service Bus - A place to store our messages
+- E-Mail button click = add a message to the service bus with all the content e-mail service will require.
+- Service Bus will capture message and forward it to the E-mail Service
+- E-mail Service will start processing the message and log it to the database.
+- If E-mail Service goes down for some reason - after recovering it will starts processing messages from service bus.
+- Azure Service Bus, Rabbit MQ.
+
 ### Create Service Bus in Azure [102]
 ### Create Queue in Service Bus [103]
 ### MessageBus Interface [104]
