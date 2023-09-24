@@ -28,3 +28,7 @@ Start Port    End Port
       ...
 ```
 So change the ports in Vs Accordingly
+
+rider track current file in solution explorer
+
+the option is called "Always Select Opened File"
