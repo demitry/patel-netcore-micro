@@ -2282,11 +2282,56 @@ public static class WebApplicationBuilderExtensions
 
 Add Authorize(Roles = $"{AppRole.Admin}") for PUT, DELETE and POST
 
+
+
 ## Section 6: Section 6 Product API
+
+//TODO: Review
+
 ### Product API Base Setup [69]
 ### Assignment Product API [70]
 ### Assignment Product API in Action [71]
 ### Assignment - Consuming Product API Part 1 [72]
+
+#### Copy, Update namrespaces
+
+#### Automapper for DTO/Model - ReverseMap
+
+Instead of
+
+```cs
+config.CreateMap<CartDetails, CartDetailsDto>();
+config.CreateMap<CartDetailsDto, CartDetails>();
+```
+
+could be used ReverseMap()
+
+```cs
+config.CreateMap<CartDetails, CartDetailsDto>().ReverseMap();
+```
+
+```cs
+    public class MappingConfig
+    {
+        public static MapperConfiguration RegisterMaps()
+        {
+            var mappingConfig = new MapperConfiguration(config =>
+            {
+                config.CreateMap<CartHeader, CartHeaderDto>().ReverseMap();
+                config.CreateMap<CartDetails, CartDetailsDto>().ReverseMap();
+            });
+            return mappingConfig;
+        }
+    }
+```
+
+#### InvariantGlobalization
+
+- Delete InvariantGlobalization from projects 
+- InvariantGlobalization will not be used in .NET 8
+
+#### Comment Authorize for Quick Test Purposes
+
 ### Assignment - Consuming Product API Part 2 [73]
 
 ```
@@ -2301,8 +2346,6 @@ I am going to merge 3 sections:
 - [ ] So I will create separate branches for that task
 branchForMergeSections789  <- branchPatelEndSections9
 ```
-
-//TODO: Review
 
 ## Section 7: Section 7 Home Page and Details
 ### Home Controller Index Action [74]
@@ -2319,7 +2362,57 @@ branchForMergeSections789  <- branchPatelEndSections9
 ### Cart Upsert Logic Part 2 [84]
 ### Remove Cart Details [85]
 ### Load Shopping Cart [86]
+
 ### Calling Product API from Shopping Cart [87]
+
+Shopping Cart API should be able to call Product API
+
+So add a ProductService to the ShoppingCartAPI
+
+Inject IHttpClientFactory
+
+Inject ProductService in CartController
+
+```cs
+namespace Mango.Services.ShoppingCartAPI.Service
+{
+    public class ProductService : IProductService
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public ProductService(IHttpClientFactory clientFactory)
+        {
+            _httpClientFactory = clientFactory;
+        }
+        public async Task<IEnumerable<ProductDto>> GetProducts()
+        {
+            var client = _httpClientFactory.CreateClient("Product");
+            var response = await client.GetAsync($"/api/product");
+            var apiContent = await response.Content.ReadAsStringAsync();
+            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContet);
+            if (resp.IsSuccess)
+            {
+                return JsonConvert.DeserializeObject<IEnumerable<ProductDto>>(Convert.ToString(resp.Result));
+            }
+            return new List<ProductDto>();
+        }
+    }
+}
+
+```
+Program
+
+```cs
+
+builder.Services.AddScoped<IProductService, ProductService>();
+
+...
+builder.Services.AddHttpClient("Product", 
+        u => u.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"]))
+    .AddHttpMessageHandler<BackendApiAuthenticationHttpClientHandler>();
+...
+```
+
 ### Interservice API Call in Action [88]
 
 // TODO
@@ -2341,6 +2434,11 @@ Shopping Cart Api cannot access coupon code, because it has to pass the bearer t
 
 How do we pass the bearer token that we have in shopping cart to the coupon API, when we are invoking that?
 
+Delegating Handlers - it is advanced topic
+
+https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-5.0#outgoing-request-middleware-1
+
+
 ### Shopping Cart Bug [98]
 ### Async in Project [99]
 
@@ -2359,9 +2457,16 @@ TODO: refactor after merge (I dislike in Patel's code)
 - [ ] string.Empty
 - [ ] Spaces
 - [ ] obj names to normal names
+- [ ] Style Cop
 - [ ] etc etc
+
 ```
 
+```
+Rider - Edit Solution Configuration : [x] Build and [x] Deploy - ticks
+
+After that will be able to include all projects into the Run config!
+```
 
 ## Section 10: Section 10 Service Bus
 ### Service Bus in our Architecture [101]

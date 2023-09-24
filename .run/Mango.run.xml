@@ -3,6 +3,7 @@
     <toRun name="Mango.Services.AuthAPI: https" type="LaunchSettings" />
     <toRun name="Mango.Services.CouponAPI: https" type="LaunchSettings" />
     <toRun name="Mango.Services.ProductAPI: https" type="LaunchSettings" />
+    <toRun name="Mango.Services.ShoppingCartAPI: https" type="LaunchSettings" />
     <toRun name="Mango.Web: https" type="LaunchSettings" />
     <method v="2" />
   </configuration>
