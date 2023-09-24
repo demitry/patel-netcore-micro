@@ -2530,12 +2530,32 @@ Cart Index View:
 
 ### Async in Project [99]
 
-// TODO
+[Asynchronous programming with async and await](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/?redirectedfrom=MSDN)
+
+- **async-await** - that is NOT microservice asynchronous communication.
+- **await** - thread must wait at this line until response returns back.
+- But because we are using the await keyword, we are telling that you must wait. That makes it synchronous communication.
+- Now you might be scratching your head on what exactly and how will we implement asynchronous communication?
 
 ### Async vs Sync Communication in Microservice [100]
 
-// TODO
+#### Synchronous communication
 
+- No problem in small monolithic
+- Client sends, server responds.
+- Advantage: client service receives an acknowledgement that the request was received and corresponding action was executed.
+
+#### Asynchronous communication
+
+- Calling service does not wait for response from called service.
+- One-to-many communication, Parallel service calls. Client can send a message to multiple services at once.
+- If it is sync. communication - web page will spinning, waiting for the email api, for example.
+- If Async - sender is responsible to send and forget
+- In out scheme - solid lines - synchronous, dotted lines - asynchronous
+- Shopping cart cannot live without response from Product = synchronous
+- Send E-mail - we will not wait. Place order and continue. E-mail will be sent when e-mail service will process it. 
+
+### After-Merge-Refactoring is needed at the end.
 ```
 2023-09-24
 Ok, I'll proceed with Patel's code but
