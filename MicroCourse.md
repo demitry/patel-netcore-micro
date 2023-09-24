@@ -2302,6 +2302,8 @@ I am going to merge 3 sections:
 branchForMergeSections789  <- branchPatelEndSections9
 ```
 
+//TODO: Review
+
 ## Section 7: Section 7 Home Page and Details
 ### Home Controller Index Action [74]
 ### Home Page UI [75]
@@ -2319,6 +2321,9 @@ branchForMergeSections789  <- branchPatelEndSections9
 ### Load Shopping Cart [86]
 ### Calling Product API from Shopping Cart [87]
 ### Interservice API Call in Action [88]
+
+// TODO
+
 ### Apply and Remove Coupon Endpoints [89]
 ### Consuming Coupon API [90]
 ## Section 9: Section 9 Shopping Cart in Web Project
@@ -2329,9 +2334,35 @@ branchForMergeSections789  <- branchPatelEndSections9
 ### Shopping Cart UI [95]
 ### Shopping Cart Functional [96]
 ### Delegating Handlers [97]
+
+// TODO
+
+Shopping Cart Api cannot access coupon code, because it has to pass the bearer token!
+
+How do we pass the bearer token that we have in shopping cart to the coupon API, when we are invoking that?
+
 ### Shopping Cart Bug [98]
 ### Async in Project [99]
+
+// TODO
+
 ### Async vs Sync Communication in Microservice [100]
+
+// TODO
+
+```
+2023-09-24
+Ok, I'll proceed with Patel's code but
+TODO: refactor after merge (I dislike in Patel's code)
+- [ ] AuthAPIController naming
+- [ ] Stable Versions, 7.0.11, not preview
+- [ ] string.Empty
+- [ ] Spaces
+- [ ] obj names to normal names
+- [ ] etc etc
+```
+
+
 ## Section 10: Section 10 Service Bus
 ### Service Bus in our Architecture [101]
 ### Create Service Bus in Azure [102]
