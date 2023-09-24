@@ -2622,6 +2622,42 @@ After that will be able to include all projects into the Run config!
 - Review + Create
 
 ### Create Queue in Service Bus [103]
+
+mango-web | Queues
+- "+" Queue Button
+- Name: EmailShoppingCart
+- Max Queue Size: 1 Gb
+- Max Delivery Count: 5
+- Message Type to Live: 14 days (before it is expired)
+- Lock Duration: 1 minute
+  - What if there is more than 1 receiver
+  - If it is received by 1 receiver, it will be locked for 1 minute
+
+- [ ] Enable auto-delete on idle queue
+  - Delete the queue immediately after it remains idle for a configurable amount of time. 
+- [ ] Enable duplicate detection
+  - Enabling duplicate detection configures your queue to keep a history of all messages sent to the queue for a configurable amount of time. During that interval, your queue will not accept any duplicate messages. Enabling this property guarantees exactly-once delivery over a user-defined span of time.
+- [ ] Enable dead lettering on message expiration
+  - Dead lettering messages involves holding messages that cannot be successfully delivered to any receiver to a separate queue after they have expired. Messages do not expire in the dead letter queue, and it supports peek-lock delivery and all transactional operations. 
+- [ ] Enable partitioning
+  - Partitions a queue across multiple message brokers and message stores. Disconnects the overall throughput of a partitioned entity from any single message broker or messaging store. This property is not modifiable after a queue has been created.
+- [ ] Enable sessions
+  - Service bus sessions allow ordered handling of unbounded sequences of related messages. With sessions enabled a queue can guarantee first-in-first-out delivery of messages.
+- [ ] Forward messages to queue/topic
+  - Automatically forward messages to a queue or topic in the same namespace. Learn more.
+
+emailshoppingcart
+
+emailshoppingcart (mango-web/emailshoppingcart)
+
+ | Service Bus Explorer - examine messages
+
+ Queues, Dead letters
+
+GOAL: When we hir the Email Cart - configure message in queue.
+
+Need Configure Service to post some messages in the service bus topic
+
 ### MessageBus Interface [104]
 ### MessageBus Implementation [105]
 ### Post Message to Service Bus [106]
