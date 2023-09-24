@@ -2426,20 +2426,108 @@ builder.Services.AddHttpClient("Product",
 ### Add Items to Shopping Cart [94]
 ### Shopping Cart UI [95]
 ### Shopping Cart Functional [96]
+
 ### Delegating Handlers [97]
 
-// TODO
+Problem:
 
-Shopping Cart Api cannot access coupon code, because it has to pass the bearer token!
+- What if we uncomment Authorize in CouponAPIController?
+- Shopping Cart Api cannot access coupon code, because it has to pass the bearer token!
+- How do we pass the bearer token that we have in shopping cart to the coupon API, when we are invoking that?
+- Delegating Handlers - it is advanced topic
 
-How do we pass the bearer token that we have in shopping cart to the coupon API, when we are invoking that?
+```cs
+namespace Mango.Services.CouponAPI.Controllers
+{
+    [Route("api/coupon")]
+    [ApiController]
+    [Authorize]
+    public class CouponAPIController : ControllerBase
+    { ... }
+```
 
-Delegating Handlers - it is advanced topic
+```cs
+        public async Task<CouponDto> GetCoupon(string couponCode)
+        {
+            var client = _httpClientFactory.CreateClient("Coupon");
+            var couponServiceResponse = await client.GetAsync($"/api/coupon/GetByCode/{couponCode}");
+            var content = await couponServiceResponse.Content.ReadAsStringAsync();
+            
+            var responseData = JsonConvert.DeserializeObject<ResponseDto>(content); // it will be NullReference if unauthorized
+            if (responseData != null && responseData.IsSuccess)
+            {
+                return JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(responseData.Result));
+            }
+            return new CouponDto();
+        }
+```
 
-https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-5.0#outgoing-request-middleware-1
+Solution:
 
+https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-8.0#outgoing-request-middleware
+
+```cs
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Http.Headers;
+
+namespace Mango.Services.ShoppingCartAPI.Utility 
+{
+    public class BackendApiAuthenticationHttpClientHandler : DelegatingHandler
+    {
+        private readonly IHttpContextAccessor _accessor;
+
+        public BackendApiAuthenticationHttpClientHandler(IHttpContextAccessor accessor)
+        {
+            _accessor = accessor;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var token = await _accessor.HttpContext.GetTokenAsync("access_token");
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return await base.SendAsync(request, cancellationToken);
+        }
+    }
+}
+
+```
+
+Program
+
+```cs
+...
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();
+...
+builder.Services.AddHttpClient("Coupon", 
+        u => u.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CouponAPI"]))
+    .AddHttpMessageHandler<BackendApiAuthenticationHttpClientHandler>();
+```
+
+```
+What is a delegating handler?
+Delegating handlers are kind of similar to the .NET core middleware,
+But the main difference is that delegating handlers are on client side.
+So let's say if you are making an HTTP request using HTTP client, we can leverage the delegating handler to pass our bearer token to the other request.
+And that is exactly what we want here.
+We can retrieve bearer token from the context accessor.
+```
 
 ### Shopping Cart Bug [98]
+
+Cart Index View:
+
+```cs
+@model CartDto
+@if(Model.CartHeader!=null && Model.CartDetails?.Count() > 0){
+<form method="post">
+...
+
+}
+```
+
 ### Async in Project [99]
 
 // TODO

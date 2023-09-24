@@ -16,12 +16,13 @@ namespace Mango.Services.ShoppingCartAPI.Service
         public async Task<CouponDto> GetCoupon(string couponCode)
         {
             var client = _httpClientFactory.CreateClient("Coupon");
-            var response = await client.GetAsync($"/api/coupon/GetByCode/{couponCode}");
-            var apiContet = await response.Content.ReadAsStringAsync();
-            var resp = JsonConvert.DeserializeObject<ResponseDto>(apiContet);
-            if (resp!=null && resp.IsSuccess)
+            var couponServiceResponse = await client.GetAsync($"/api/coupon/GetByCode/{couponCode}");
+            var content = await couponServiceResponse.Content.ReadAsStringAsync();
+            
+            var responseData = JsonConvert.DeserializeObject<ResponseDto>(content); // it will be NullReference if unauthorized
+            if (responseData != null && responseData.IsSuccess)
             {
-                return JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(resp.Result));
+                return JsonConvert.DeserializeObject<CouponDto>(Convert.ToString(responseData.Result));
             }
             return new CouponDto();
         }
