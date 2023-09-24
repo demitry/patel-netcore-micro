@@ -14,6 +14,7 @@ namespace Mango.Web.Controllers
             _productService=productService;
         }
 
+
         public async Task<IActionResult> ProductIndex()
         {
             List<ProductDto>? list = new();
@@ -89,7 +90,7 @@ namespace Mango.Web.Controllers
             }
             return View(productDto);
         }
-        
+
         public async Task<IActionResult> ProductEdit(int productId)
         {
             ResponseDto? response = await _productService.GetProductByIdAsync(productId);
@@ -122,5 +123,6 @@ namespace Mango.Web.Controllers
             }
             return View(productDto);
         }
+
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Mango.Services.AuthAPI.Models.Dto
+﻿namespace Mango.Services.AuthAPI.Models.Dto
 {
     public class LoginRequestDto
     {

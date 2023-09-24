@@ -11,7 +11,6 @@ namespace Mango.Services.AuthAPI.Service
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
         private readonly JwtOptions _jwtOptions;
-
         public JwtTokenGenerator(IOptions<JwtOptions> jwtOptions)
         {
             _jwtOptions = jwtOptions.Value;
@@ -20,20 +19,17 @@ namespace Mango.Services.AuthAPI.Service
         public string GenerateToken(ApplicationUser applicationUser, IEnumerable<string> roles)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            
-            var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret); 
+
+            var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
 
             var claimList = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Email, applicationUser.Email),
-                new Claim(JwtRegisteredClaimNames.Sub, applicationUser.Id),
-                new Claim(JwtRegisteredClaimNames.Name, applicationUser.UserName)
+                new Claim(JwtRegisteredClaimNames.Email,applicationUser.Email),
+                new Claim(JwtRegisteredClaimNames.Sub,applicationUser.Id),
+                new Claim(JwtRegisteredClaimNames.Name,applicationUser.UserName)
             };
 
-            if (roles.Any())
-            {
-                claimList.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-            }
+            claimList.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -45,7 +41,6 @@ namespace Mango.Services.AuthAPI.Service
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
             return tokenHandler.WriteToken(token);
         }
     }

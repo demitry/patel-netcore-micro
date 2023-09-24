@@ -1,4 +1,3 @@
-using System.Text;
 using AutoMapper;
 using Mango.Services.CouponAPI;
 using Mango.Services.CouponAPI.Data;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +16,6 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-
-
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -33,7 +31,7 @@ builder.Services.AddSwaggerGen(option =>
         Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
-        Scheme = JwtBearerDefaults.AuthenticationScheme //"Bearer"
+        Scheme = "Bearer"
     });
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -42,15 +40,14 @@ builder.Services.AddSwaggerGen(option =>
             {
                 Reference= new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
+                    Type=ReferenceType.SecurityScheme,
+                    Id=JwtBearerDefaults.AuthenticationScheme
                 }
             }, new string[]{}
         }
     });
 });
-
-builder.AddAppAuthentication();
+builder.AddAppAuthetication();
 
 builder.Services.AddAuthorization();
 
@@ -64,17 +61,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-ApplyMigrations();
-
+ApplyMigration();
 app.Run();
 
-void ApplyMigrations()
+
+void ApplyMigration()
 {
     using (var scope = app.Services.CreateScope())
     {
