@@ -2784,8 +2784,88 @@ public class MessageBus : IMessageBus
 }
 ```
 
-### Post Message to Service Bus [106]
-### More Properties in Cart [107]
+### Post Message to Service Bus [106] and More Properties in Cart [107]
+
+Flow
+```
+
+Cart Index Page Post 
+    -> Cart Service EmailCart() 
+        -> Web Project's CartController  HttpPost EmailCart() 
+            -> CartApiController HttpPost("EmailCartRequest") EmailCartRequest([FromBody] CartDto cartDto)
+                -> MessageBus.PublishMessage();
+```
+
+
+CartApiController:
+```cs
+        [HttpPost("EmailCartRequest")]
+        public async Task<object> EmailCartRequest([FromBody] CartDto cartDto)
+        {
+            try
+            {
+                string topicName = configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCart");
+                await messageBus.PublishMessage(cartDto, topicName);
+                _response.Result = true;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.ToString();
+            }
+            return _response;
+        }
+```
+
+Web Project's CartController EmailCart()
+
+```cs
+        [HttpPost]
+        public async Task<IActionResult> EmailCart(CartDto cartDto)
+        {
+            CartDto cart = await LoadCartDtoBasedOnLoggedInUser();
+            
+            cart.CartHeader.Email = User.Claims.Where(u => 
+                u.Type == JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
+
+            ResponseDto? response = await _cartService.EmailCart(cart);
+            
+            if (response != null & response.IsSuccess)
+            {
+                TempData["success"] = "Email will be proceed and sent shortly";
+                return RedirectToAction(nameof(CartIndex));
+            }
+            
+            return View();
+        }
+```
+
+Cart Service EmailCart:
+
+```cs
+        public async Task<ResponseDto?> EmailCart(CartDto cartDto)
+        {
+            return await _baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = cartDto,
+                Url = SD.ShoppingCartAPIBase + "/api/cart/EmailCartRequest"
+            });
+        }
+```
+
+Cart Index Page:
+
+```cs
+<form method="post" asp-action="EmailCart">
+```
+
+emailshoppingcart (mango-web/emailshoppingcart) | Service Bus Explorer
+
+```json
+{"CartHeader":{"CartHeaderId":2,"UserId":"ddb4516d-7b80-4c5a-abef-19adee4eb66c","CouponCode":null,"Discount":0.0,"CartTotal":43.99,"FirstName":null,"LastName":null,"Phone":null,"Email":"admin4@gmail.com"},"CartDetails":[{"CartDetailsId":2,"CartHeaderId":2,"CartHeader":{"CartHeaderId":2,"UserId":"ddb4516d-7b80-4c5a-abef-19adee4eb66c","CouponCode":null,"Discount":0.0,"CartTotal":0.0,"FirstName":null,"LastName":null,"Phone":null,"Email":null},"ProductId":1,"Product":{"ProductId":1,"Name":"Samosa","Price":15.0,"Description":"Test Quisque vel lacus ac magna, vehicula sagittis ut non lacus.<br/> Vestibulum arcu turpis, maximus malesuada neque. Phasellus commodo cursus pretium.","CategoryName":"Appetizer","ImageUrl":"https://placehold.co/603x403"},"Count":1},{"CartDetailsId":3,"CartHeaderId":2,"CartHeader":{"CartHeaderId":2,"UserId":"ddb4516d-7b80-4c5a-abef-19adee4eb66c","CouponCode":null,"Discount":0.0,"CartTotal":0.0,"FirstName":null,"LastName":null,"Phone":null,"Email":null},"ProductId":2,"Product":{"ProductId":2,"Name":"Paneer Tikka","Price":13.99,"Description":" Quisque vel lacus ac magna, vehicula sagittis ut non lacus.<br/> Vestibulum arcu turpis, maximus malesuada neque. Phasellus commodo cursus pretium.","CategoryName":"Appetizer","ImageUrl":"https://placehold.co/602x402"},"Count":1},{"CartDetailsId":4,"CartHeaderId":2,"CartHeader":{"CartHeaderId":2,"UserId":"ddb4516d-7b80-4c5a-abef-19adee4eb66c","CouponCode":null,"Discount":0.0,"CartTotal":0.0,"FirstName":null,"LastName":null,"Phone":null,"Email":null},"ProductId":4,"Product":{"ProductId":4,"Name":"Pav Bhaji","Price":15.0,"Description":" Quisque vel lacus ac magna, vehicula sagittis ut non lacus.<br/> Vestibulum arcu turpis, maximus malesuada neque. Phasellus commodo cursus pretium.","CategoryName":"Entree","ImageUrl":"https://placehold.co/600x400"},"Count":1}]}
+```
+
 ## Section 11: Section 11 Email API - Service Bus Receiver
 ### Setup Email and DTO's [108]
 ### Implement Processor for Service Bus [109]
