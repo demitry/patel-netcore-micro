@@ -32,3 +32,39 @@ So change the ports in Vs Accordingly
 rider track current file in solution explorer
 
 the option is called "Always Select Opened File"
+
+
+
+
+### My Secrets
+
+Rider -> Project -> Tools -> .NET User Secrets
+
+```json
+{
+"MessageBus:MangoWebConnectionString": "Endpoint=sb..."
+}
+```
+
+observe your secrets:
+
+```
+dotnet user-secrets list
+```
+
+```cs
+using Microsoft.Extensions.Configuration;
+...
+    // ctor
+    public MessageBus()
+    {
+        var config = new ConfigurationBuilder().AddUserSecrets<MessageBus>().Build();
+        connectionString = config.GetSection("MessageBus")["MangoWebConnectionString"];
+    }
+
+    public async Task PublishMessage(object message, string topicQueueName)
+    {
+        await using var client = new ServiceBusClient(connectionString); // So can use your secret!
+        ...
+    }
+```

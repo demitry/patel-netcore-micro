@@ -83,6 +83,10 @@
         - [Assignment Product API [70]](#assignment-product-api-70)
         - [Assignment Product API in Action [71]](#assignment-product-api-in-action-71)
         - [Assignment - Consuming Product API Part 1 [72]](#assignment---consuming-product-api-part-1-72)
+            - [Copy, Update namrespaces](#copy-update-namrespaces)
+            - [Automapper for DTO/Model - ReverseMap](#automapper-for-dtomodel---reversemap)
+            - [InvariantGlobalization](#invariantglobalization)
+            - [Comment Authorize for Quick Test Purposes](#comment-authorize-for-quick-test-purposes)
         - [Assignment - Consuming Product API Part 2 [73]](#assignment---consuming-product-api-part-2-73)
     - [Section 7: Section 7 Home Page and Details](#section-7-section-7-home-page-and-details)
         - [Home Controller Index Action [74]](#home-controller-index-action-74)
@@ -114,11 +118,17 @@
         - [Shopping Cart Bug [98]](#shopping-cart-bug-98)
         - [Async in Project [99]](#async-in-project-99)
         - [Async vs Sync Communication in Microservice [100]](#async-vs-sync-communication-in-microservice-100)
+            - [Synchronous communication](#synchronous-communication)
+            - [Asynchronous communication](#asynchronous-communication)
+        - [After-Merge-Refactoring is needed at the end.](#after-merge-refactoring-is-needed-at-the-end)
     - [Section 10: Section 10 Service Bus](#section-10-section-10-service-bus)
         - [Service Bus in our Architecture [101]](#service-bus-in-our-architecture-101)
         - [Create Service Bus in Azure [102]](#create-service-bus-in-azure-102)
+            - [Abbreviations](#abbreviations)
+            - [Steps](#steps)
         - [Create Queue in Service Bus [103]](#create-queue-in-service-bus-103)
         - [MessageBus Interface [104]](#messagebus-interface-104)
+        - [My Secrets](#my-secrets)
         - [MessageBus Implementation [105]](#messagebus-implementation-105)
         - [Post Message to Service Bus [106]](#post-message-to-service-bus-106)
         - [More Properties in Cart [107]](#more-properties-in-cart-107)
@@ -2659,7 +2669,121 @@ GOAL: When we hir the Email Cart - configure message in queue.
 Need Configure Service to post some messages in the service bus topic
 
 ### MessageBus Interface [104]
+
+nuget : Azure.Messaging.ServiceBus
+Integration => Mango.MessageBus class library
+
+emailshoppingcart (mango-web/emailshoppingcart) | Shared access policies
+
+Shared access policies
+
+https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-sas
+
+No default so I will create RootManageSharedAccessKey
+Copy Connection String
+
+```cs
+using System.Text;
+using Azure.Messaging.ServiceBus;
+using Newtonsoft.Json;
+
+namespace Mango.MessageBus;
+
+public class MessageBus : IMessageBus
+{
+    private string connectionString = "Endpoint=sb://mango-web.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=8vq...=;EntityPath=emailshoppingcart";
+    // save in app settings parameters ?
+    
+    public async Task PublishMessage(object message, string topicQueueName)
+    {
+        await using var client = new ServiceBusClient(connectionString);
+        ServiceBusSender sender = client.CreateSender(topicQueueName);
+        var jsonMessage = JsonConvert.SerializeObject(message);
+        
+        ServiceBusMessage finalMessage = new ServiceBusMessage(Encoding.UTF8.GetBytes(jsonMessage))
+        {
+            CorrelationId = Guid.NewGuid().ToString()
+        };
+        
+        await sender.SendMessageAsync(finalMessage);
+        await client.DisposeAsync();
+    }
+}
+```
+
+### My Secrets
+
+Rider -> Project -> Tools -> .NET User Secrets
+
+```json
+{
+"MessageBus:MangoWebConnectionString": "Endpoint=sb..."
+}
+```
+
+observe your secrets:
+
+```
+dotnet user-secrets list
+```
+
+```cs
+using Microsoft.Extensions.Configuration;
+...
+    // ctor
+    public MessageBus()
+    {
+        var config = new ConfigurationBuilder().AddUserSecrets<MessageBus>().Build();
+        connectionString = config.GetSection("MessageBus")["MangoWebConnectionString"];
+    }
+
+    public async Task PublishMessage(object message, string topicQueueName)
+    {
+        await using var client = new ServiceBusClient(connectionString); // So can use your secret!
+        ...
+    }
+```
+
 ### MessageBus Implementation [105]
+
+nuget: Azure.Messaging.ServiceBus
+
+Class Library
+
+```cs
+using System.Text;
+using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+
+namespace Mango.MessageBus;
+
+public class MessageBus : IMessageBus
+{  
+    public MessageBus()
+    {
+        var config = new ConfigurationBuilder().AddUserSecrets<MessageBus>().Build();
+        connectionString = config.GetSection("MessageBus")["MangoWebConnectionString"];
+    }
+
+    private readonly string connectionString;
+    public async Task PublishMessage(object message, string topicQueueName)
+    {
+        await using var client = new ServiceBusClient(connectionString);
+        ServiceBusSender sender = client.CreateSender(topicQueueName);
+        var jsonMessage = JsonConvert.SerializeObject(message);
+        
+        ServiceBusMessage finalMessage = new ServiceBusMessage(Encoding.UTF8.GetBytes(jsonMessage))
+        {
+            CorrelationId = Guid.NewGuid().ToString()
+        };
+        
+        await sender.SendMessageAsync(finalMessage);
+        await client.DisposeAsync();
+    }
+}
+```
+
 ### Post Message to Service Bus [106]
 ### More Properties in Cart [107]
 ## Section 11: Section 11 Email API - Service Bus Receiver
