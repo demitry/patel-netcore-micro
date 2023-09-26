@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json.Serialization;
 using Azure.Messaging.ServiceBus;
 using Mango.Services.EmailAPI.Models.Dto;
 using Newtonsoft.Json;

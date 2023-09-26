@@ -2903,7 +2903,117 @@ public class AzureServiceBusConsumer
 ```
 
 ### Register Methods to Processor [110]
+
+```cs
+using System.Text;
+using System.Text.Json.Serialization;
+using Azure.Messaging.ServiceBus;
+using Mango.Services.EmailAPI.Models.Dto;
+using Newtonsoft.Json;
+
+namespace Mango.Services.EmailAPI.Messaging;
+
+public class AzureServiceBusConsumer : IAzureServiceBusConsumer
+{
+    private readonly string serviceBusConnectionString;
+    private readonly string emailCartQueue;
+    private readonly IConfiguration _configuration;
+
+    private ServiceBusProcessor _emailCartProcessor;
+
+    public AzureServiceBusConsumer(IConfiguration configuration)
+    {
+        _configuration = configuration;
+
+        var secretConfig = new ConfigurationBuilder().AddUserSecrets<AzureServiceBusConsumer>().Build();
+        serviceBusConnectionString = secretConfig.GetSection("MessageBus")["MangoWebConnectionString"];
+        // I'll not save in the appsettings, I'll save in .NET secrets
+        // patel: // _configuration.GetValue<string>("ServiceBusConnectionString");
+
+        emailCartQueue = _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
+
+        var client = new ServiceBusClient(serviceBusConnectionString);
+        _emailCartProcessor = client.CreateProcessor(emailCartQueue);
+    }
+
+    public async Task Start()
+    {
+        _emailCartProcessor.ProcessMessageAsync += OnEmailCartRequestReceived;
+        _emailCartProcessor.ProcessErrorAsync += ErrorHandler;
+    }
+
+    public async Task Stop()
+    {
+        _emailCartProcessor.StopProcessingAsync();
+        _emailCartProcessor.DisposeAsync();
+    }
+    
+    private Task ErrorHandler(ProcessErrorEventArgs arg)
+    {
+        Console.WriteLine(arg.Exception.ToString());
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEmailCartRequestReceived(ProcessMessageEventArgs arg)
+    {
+        // this is where we receive the message
+        var message = arg.Message;
+        var body = Encoding.UTF8.GetString(message.Body);
+        CartDto objMessage = JsonConvert.DeserializeObject<CartDto>(body);
+
+        try
+        {
+            //TODO: try to log the message
+            
+            await arg.CompleteMessageAsync(arg.Message);
+            // Hey, this message is processed and you can remove it from your queue
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+}
+```
+
 ### Register Service Bus Consumer on Application Start [111]
+
+Add Start() and Stop() to the singleton lifetime
+
+```cs
+using Mango.Services.EmailAPI.Messaging;
+
+namespace Mango.Services.EmailAPI.Extensions;
+
+public static class ApplicationBuilderExtensions
+{
+    private static IAzureServiceBusConsumer ServiceBusConsumer { get; set; }
+    
+    public static IApplicationBuilder UseAzureServiceBusConsumer(this IApplicationBuilder app)
+    {
+        ServiceBusConsumer = app.ApplicationServices.GetService<IAzureServiceBusConsumer>();
+
+        var hostApplicationLife = app.ApplicationServices.GetService<IHostApplicationLifetime>();
+
+        hostApplicationLife.ApplicationStarted.Register(OnStart);
+        hostApplicationLife.ApplicationStopping.Register(OnStop);
+        
+        return app;
+    }
+
+    private static void OnStop()
+    {
+        ServiceBusConsumer.Stop();
+    }
+
+    private static void OnStart()
+    {
+        ServiceBusConsumer.Start();
+    }
+}
+```
+
 ### Consuming Messages in Action [112]
 ### Asynchronous Communication in Action [113]
 ### Assignment - Register User Queue [114]
