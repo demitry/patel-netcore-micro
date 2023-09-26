@@ -70,6 +70,7 @@ Global
 		{A034200D-4B97-49E5-8613-69DE93BFCEA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A034200D-4B97-49E5-8613-69DE93BFCEA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A034200D-4B97-49E5-8613-69DE93BFCEA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A034200D-4B97-49E5-8613-69DE93BFCEA4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
