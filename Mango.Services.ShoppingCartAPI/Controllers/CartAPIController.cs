@@ -88,7 +88,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-                string topicName = configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCart");
+                string topicName = configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
                 await messageBus.PublishMessage(cartDto, topicName);
                 _response.Result = true;
             }

@@ -2873,6 +2873,35 @@ emailshoppingcart (mango-web/emailshoppingcart) | Service Bus Explorer
 Ok. We posted a message, EmailService will read this message
 
 ### Implement Processor for Service Bus [109]
+
+Out Email API will be notified when there is a new message in our particular queue of a service bus.
+
+```cs
+public class AzureServiceBusConsumer
+{
+    private readonly string serviceBusConnectionString;
+    private readonly string emailCartQueue;
+    private readonly IConfiguration _configuration;
+
+    private ServiceBusProcessor _emailCartProcessor;
+
+    public AzureServiceBusConsumer(IConfiguration configuration)
+    {
+        _configuration = configuration;
+
+        var secretConfig = new ConfigurationBuilder().AddUserSecrets<AzureServiceBusConsumer>().Build();
+        serviceBusConnectionString = secretConfig.GetSection("MessageBus")["MangoWebConnectionString"];
+        // I'll not save in the appsettings, I'll save in .NET secrets
+        // patel: // _configuration.GetValue<string>("ServiceBusConnectionString");
+
+        emailCartQueue = _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
+
+        var client = new ServiceBusClient(serviceBusConnectionString);
+        _emailCartProcessor = client.CreateProcessor(emailCartQueue);
+    }
+}
+```
+
 ### Register Methods to Processor [110]
 ### Register Service Bus Consumer on Application Start [111]
 ### Consuming Messages in Action [112]
