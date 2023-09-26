@@ -2786,9 +2786,9 @@ public class MessageBus : IMessageBus
 
 ### Post Message to Service Bus [106] and More Properties in Cart [107]
 
-Flow
-```
+Flow:
 
+```
 Cart Index Page Post 
     -> Cart Service EmailCart() 
         -> Web Project's CartController  HttpPost EmailCart() 
@@ -2867,7 +2867,11 @@ emailshoppingcart (mango-web/emailshoppingcart) | Service Bus Explorer
 ```
 
 ## Section 11: Section 11 Email API - Service Bus Receiver
+
 ### Setup Email and DTO's [108]
+
+Ok. We posted a message, EmailService will read this message
+
 ### Implement Processor for Service Bus [109]
 ### Register Methods to Processor [110]
 ### Register Service Bus Consumer on Application Start [111]
