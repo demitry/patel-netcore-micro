@@ -8,12 +8,16 @@ namespace Mango.Services.EmailAPI.Messaging;
 
 public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 {
-    private readonly string serviceBusConnectionString;
+    private readonly string sbusCnStrForEmailQueue;
+    private readonly string sbusCnStrForRegUserQueue;
+    
     private readonly string emailCartQueue;
+    private readonly string registerUserQueue;
     private readonly IConfiguration _configuration;
     private readonly EmailService _emailService; // it is not interface, but singleton implementation
     
-    private ServiceBusProcessor _emailCartProcessor;
+    private readonly ServiceBusProcessor _emailCartProcessor;
+    private readonly ServiceBusProcessor _registerUserProcessor;
 
     public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
     {
@@ -21,28 +25,61 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
         _emailService = emailService;
         
         var secretConfig = new ConfigurationBuilder().AddUserSecrets<AzureServiceBusConsumer>().Build();
-        serviceBusConnectionString = secretConfig.GetSection("MessageBus")["MangoWebConnectionString"];
+        sbusCnStrForEmailQueue = secretConfig.GetSection("MessageBus")["MangoWebConnectionString_emailshoppingcart"];
+        sbusCnStrForRegUserQueue = secretConfig.GetSection("MessageBus")["MangoWebConnectionString_registeruser"];
+        
         // I'll not save in the appsettings, I'll save in .NET secrets
         // patel: // _configuration.GetValue<string>("ServiceBusConnectionString");
 
         emailCartQueue = _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
-
-        var client = new ServiceBusClient(serviceBusConnectionString);
+        registerUserQueue = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue");
+        
+        var client = new ServiceBusClient(sbusCnStrForEmailQueue);
         _emailCartProcessor = client.CreateProcessor(emailCartQueue);
+        
+        var registerQueueClient = new ServiceBusClient(sbusCnStrForRegUserQueue);
+        _registerUserProcessor = registerQueueClient.CreateProcessor(registerUserQueue);
     }
 
     public async Task Start()
     {
         _emailCartProcessor.ProcessMessageAsync += OnEmailCartRequestReceived;
         _emailCartProcessor.ProcessErrorAsync += ErrorHandler;
-
         await _emailCartProcessor.StartProcessingAsync();
+        
+        _registerUserProcessor.ProcessMessageAsync += OnUserRegisterRequestReceived;
+        _registerUserProcessor.ProcessErrorAsync += ErrorHandler;
+        await _registerUserProcessor.StartProcessingAsync();
+    }
+
+    private async Task OnUserRegisterRequestReceived(ProcessMessageEventArgs arg)
+    {
+        // this is where we receive the register user message
+        var message = arg.Message;
+        var body = Encoding.UTF8.GetString(message.Body);
+        string usersEmail = JsonConvert.DeserializeObject<string>(body);
+
+        try
+        {
+            await _emailService.RegisterUserAndLog(usersEmail);
+            
+            await arg.CompleteMessageAsync(arg.Message);
+            // Hey, this message is processed and you can remove it from your queue
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     public async Task Stop()
     {
         _emailCartProcessor.StopProcessingAsync();
         _emailCartProcessor.DisposeAsync();
+        
+        _registerUserProcessor.StopProcessingAsync();
+        _registerUserProcessor.DisposeAsync();
     }
     
     private Task ErrorHandler(ProcessErrorEventArgs arg)

@@ -8,6 +8,8 @@ namespace Mango.Services.EmailAPI.Services;
 
 public class EmailService : IEmailService
 {
+    private const string adminEmail = "dpoluektov@gmail.com";
+    
     private DbContextOptions<AppDbContext> _dbOptions;
     public EmailService(DbContextOptions<AppDbContext> dbOptions)
     {
@@ -34,7 +36,13 @@ public class EmailService : IEmailService
 
         await LogAndEmail(message.ToString(), cartDto.CartHeader.Email);
     }
-    
+
+    public async Task RegisterUserAndLog(string usersEmail)
+    {
+        string message = "User Registration Successful. <br/> Email : " + usersEmail;
+        await LogAndEmail(message, adminEmail);
+    }
+
     private async Task<bool> LogAndEmail(string message, string email)
     {
         try
