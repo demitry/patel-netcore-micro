@@ -2,5 +2,5 @@
 
 public interface IMessageBus
 {
-    Task PublishMessage(object message, string topicQueueName);
+    Task <bool> PublishMessage(object message, string topicQueueName);
 }

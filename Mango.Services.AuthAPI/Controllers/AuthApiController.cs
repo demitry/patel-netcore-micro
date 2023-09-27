@@ -33,7 +33,14 @@ namespace Mango.Services.AuthAPI.Controllers
             }
 
             var topicQueueName = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue");
-            await _messageBus.PublishMessage(model.Email, topicQueueName);
+            
+            bool messageSent = await _messageBus.PublishMessage(model.Email, topicQueueName);
+
+            if (!messageSent)
+            {
+                _response.Message = "Register message wasn't sent.";
+            }
+                
             
             return Ok(_response);
         }
