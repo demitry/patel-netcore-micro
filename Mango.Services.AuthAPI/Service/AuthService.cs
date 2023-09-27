@@ -84,7 +84,8 @@ namespace Mango.Services.AuthAPI.Service
 
             try
             {
-                var result =await  _userManager.CreateAsync(user,registrationRequestDto.Password);
+                var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
+                
                 if (result.Succeeded)
                 {
                     var userToReturn = _db.ApplicationUsers.First(u => u.UserName == registrationRequestDto.Email);
@@ -108,7 +109,7 @@ namespace Mango.Services.AuthAPI.Service
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
             return "Error Encountered";
         }

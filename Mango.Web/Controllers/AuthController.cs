@@ -70,12 +70,13 @@ namespace Mango.Web.Controllers
             ResponseDto result = await _authService.RegisterAsync(obj);
             ResponseDto assingRole;
 
-            if(result!=null && result.IsSuccess)
+            if( result != null && result.IsSuccess)
             {
                 if (string.IsNullOrEmpty(obj.Role))
                 {
                     obj.Role = SD.RoleCustomer;
                 }
+                
                 assingRole = await _authService.AssignRoleAsync(obj);
                 if (assingRole!=null && assingRole.IsSuccess)
                 {
