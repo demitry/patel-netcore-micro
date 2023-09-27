@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Azure.Messaging.ServiceBus;
 using Mango.Services.EmailAPI.Models.Dto;
+using Mango.Services.EmailAPI.Services;
 using Newtonsoft.Json;
 
 namespace Mango.Services.EmailAPI.Messaging;
@@ -10,13 +11,15 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     private readonly string serviceBusConnectionString;
     private readonly string emailCartQueue;
     private readonly IConfiguration _configuration;
-
+    private readonly EmailService _emailService; // it is not interface, but singleton implementation
+    
     private ServiceBusProcessor _emailCartProcessor;
 
-    public AzureServiceBusConsumer(IConfiguration configuration)
+    public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
     {
         _configuration = configuration;
-
+        _emailService = emailService;
+        
         var secretConfig = new ConfigurationBuilder().AddUserSecrets<AzureServiceBusConsumer>().Build();
         serviceBusConnectionString = secretConfig.GetSection("MessageBus")["MangoWebConnectionString"];
         // I'll not save in the appsettings, I'll save in .NET secrets
@@ -57,7 +60,7 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 
         try
         {
-            //TODO: try to log the message
+            await _emailService.EmailCartAndLog(objMessage);
             
             await arg.CompleteMessageAsync(arg.Message);
             // Hey, this message is processed and you can remove it from your queue

@@ -3092,7 +3092,163 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 
 
 ### Asynchronous Communication in Action [113]
+
+ok,
+
+- AzureServiceBusConsumer is Singleton
+- DbContext is a Scoped service
+- We cannot consume a scoped service in a singleton implementation.
+- => new Singleton AppDbContext implementation. 
+
+Program
+```cs
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
+```
+
+```cs
+using System.Text;
+using Mango.Services.EmailAPI.Data;
+using Mango.Services.EmailAPI.Models;
+using Mango.Services.EmailAPI.Models.Dto;
+using Microsoft.EntityFrameworkCore;
+
+namespace Mango.Services.EmailAPI.Services;
+
+public class EmailService : IEmailService
+{
+    private DbContextOptions<AppDbContext> _dbOptions;
+    public EmailService(DbContextOptions<AppDbContext> dbOptions)
+    {
+        _dbOptions = dbOptions;
+    }
+    
+    // We will not use DI for DbContext, because it is scoped implementation
+    // Register singleton im Program
+    public async Task EmailCartAndLog(CartDto cartDto)
+    {
+        StringBuilder message = new StringBuilder();
+
+        message.AppendLine("<br/>Cart Email Requested ");
+        message.AppendLine("<br/>Total " + cartDto.CartHeader.CartTotal);
+        message.Append("<br/>");
+        message.Append("<ul>");
+        foreach (var item in cartDto.CartDetails)
+        {
+            message.Append("<li>");
+            message.Append(item.Product.Name + " x " + item.Count);
+            message.Append("</li>");
+        }
+        message.Append("</ul>");
+
+        await LogAndEmail(message.ToString(), cartDto.CartHeader.Email);
+    }
+    
+    private async Task<bool> LogAndEmail(string message, string email)
+    {
+        try
+        {
+            EmailLogger emailLog = new()
+            {
+                Email = email,
+                EmailSent = DateTime.Now,
+                Message = message
+            };
+            await using var _db = new AppDbContext(_dbOptions);
+            await _db.EmailLoggers.AddAsync(emailLog);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+}
+```
+
+```cs
+using System.Text;
+using Azure.Messaging.ServiceBus;
+using Mango.Services.EmailAPI.Models.Dto;
+using Mango.Services.EmailAPI.Services;
+using Newtonsoft.Json;
+
+namespace Mango.Services.EmailAPI.Messaging;
+
+public class AzureServiceBusConsumer : IAzureServiceBusConsumer
+{
+    private readonly string serviceBusConnectionString;
+    private readonly string emailCartQueue;
+    private readonly IConfiguration _configuration;
+    private readonly EmailService _emailService; // it is not interface, but singleton implementation
+    
+    private ServiceBusProcessor _emailCartProcessor;
+
+    public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
+    {
+        _configuration = configuration;
+        _emailService = emailService;
+        
+        var secretConfig = new ConfigurationBuilder().AddUserSecrets<AzureServiceBusConsumer>().Build();
+        serviceBusConnectionString = secretConfig.GetSection("MessageBus")["MangoWebConnectionString"];
+        // I'll not save in the appsettings, I'll save in .NET secrets
+        // patel: // _configuration.GetValue<string>("ServiceBusConnectionString");
+
+        emailCartQueue = _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
+
+        var client = new ServiceBusClient(serviceBusConnectionString);
+        _emailCartProcessor = client.CreateProcessor(emailCartQueue);
+    }
+
+    public async Task Start()
+    {
+        _emailCartProcessor.ProcessMessageAsync += OnEmailCartRequestReceived;
+        _emailCartProcessor.ProcessErrorAsync += ErrorHandler;
+
+        await _emailCartProcessor.StartProcessingAsync();
+    }
+
+    public async Task Stop()
+    {
+        _emailCartProcessor.StopProcessingAsync();
+        _emailCartProcessor.DisposeAsync();
+    }
+    
+    private Task ErrorHandler(ProcessErrorEventArgs arg)
+    {
+        Console.WriteLine(arg.Exception.ToString());
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEmailCartRequestReceived(ProcessMessageEventArgs arg)
+    {
+        // this is where we receive the message
+        var message = arg.Message;
+        var body = Encoding.UTF8.GetString(message.Body);
+        CartDto objMessage = JsonConvert.DeserializeObject<CartDto>(body);
+
+        try
+        {
+            await _emailService.EmailCartAndLog(objMessage);
+            
+            await arg.CompleteMessageAsync(arg.Message);
+            // Hey, this message is processed and you can remove it from your queue
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+}
+```
+
 ### Assignment - Register User Queue [114]
+
+
+
 ### Assignment Solution Part 1 - Send Message to Queue [115]
 ### Assignment Solution Part 2 - Processor on Register User Queue [116]
 ## Section 12: Section 12 Checkout UI and Order API
