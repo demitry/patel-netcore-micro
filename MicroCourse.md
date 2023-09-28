@@ -3330,6 +3330,26 @@ What are in secrets?
     }
 ```
 
+```cs
+    private sealed class TaskOfIActionResultExecutor : ActionMethodExecutor
+    {
+        public override async ValueTask<IActionResult> Execute(
+            ActionContext actionContext,
+            IActionResultTypeMapper mapper,
+            ObjectMethodExecutor executor,
+            object controller,
+            object?[]? arguments)
+        {
+            // Async method returning Task<IActionResult>
+            // Avoid extra allocations by calling Execute rather than ExecuteAsync and casting to Task<IActionResult>.
+            var returnValue = executor.Execute(controller, arguments);
+            var actionResult = await (Task<IActionResult>)returnValue!;
+            EnsureActionResultNotNull(executor, actionResult);
+
+            return actionResult;
+        }
+```
+
 ## Section 13: Section 13 Stripe Checkout
 ### Stripe Flow and Stripe DTO [128]
 ### Order Confirmation Page [129]
