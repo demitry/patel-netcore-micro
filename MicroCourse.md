@@ -130,8 +130,7 @@
         - [MessageBus Interface [104]](#messagebus-interface-104)
         - [My Secrets](#my-secrets)
         - [MessageBus Implementation [105]](#messagebus-implementation-105)
-        - [Post Message to Service Bus [106]](#post-message-to-service-bus-106)
-        - [More Properties in Cart [107]](#more-properties-in-cart-107)
+        - [Post Message to Service Bus [106] and More Properties in Cart [107]](#post-message-to-service-bus-106-and-more-properties-in-cart-107)
     - [Section 11: Section 11 Email API - Service Bus Receiver](#section-11-section-11-email-api---service-bus-receiver)
         - [Setup Email and DTO's [108]](#setup-email-and-dtos-108)
         - [Implement Processor for Service Bus [109]](#implement-processor-for-service-bus-109)
@@ -154,6 +153,10 @@
         - [Order Create Endpoint [125]](#order-create-endpoint-125)
         - [Create Order Service [126]](#create-order-service-126)
         - [Create Order Header [127]](#create-order-header-127)
+        - [Merge](#merge)
+            - [What is interesting?](#what-is-interesting)
+            - [BackendApiAuthenticationHttpClientHandler](#backendapiauthenticationhttpclienthandler)
+            - [MappingConfig](#mappingconfig)
     - [Section 13: Section 13 Stripe Checkout](#section-13-section-13-stripe-checkout)
         - [Stripe Flow and Stripe DTO [128]](#stripe-flow-and-stripe-dto-128)
         - [Order Confirmation Page [129]](#order-confirmation-page-129)
@@ -3246,9 +3249,6 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 ```
 
 ### Assignment - Register User Queue [114]
-
-
-
 ### Assignment Solution Part 1 - Send Message to Queue [115]
 ### Assignment Solution Part 2 - Processor on Register User Queue [116]
 ## Section 12: Section 12 Checkout UI and Order API
@@ -3263,6 +3263,73 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
 ### Order Create Endpoint [125]
 ### Create Order Service [126]
 ### Create Order Header [127]
+
+### Merge
+
+#### What is interesting?
+
+What are in secrets?
+
+```cs
+        public static WebApplicationBuilder AddAppAuthetication(this WebApplicationBuilder builder)
+        {
+            var settingsSection = builder.Configuration.GetSection("ApiSettings");
+
+            var secret = settingsSection.GetValue<string>("Secret");
+            var issuer = settingsSection.GetValue<string>("Issuer");
+            var audience = settingsSection.GetValue<string>("Audience");
+```
+
+#### BackendApiAuthenticationHttpClientHandler
+
+```cs
+    public class BackendApiAuthenticationHttpClientHandler : DelegatingHandler
+    {
+        private readonly IHttpContextAccessor _accessor;
+
+        public BackendApiAuthenticationHttpClientHandler(IHttpContextAccessor accessor)
+        {
+            _accessor = accessor;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var token = await _accessor.HttpContext.GetTokenAsync("access_token");
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return await base.SendAsync(request, cancellationToken);
+        }
+    }
+```
+
+#### MappingConfig
+
+```cs
+    public class MappingConfig
+    {
+        public static MapperConfiguration RegisterMaps()
+        {
+            var mappingConfig = new MapperConfiguration(config =>
+            {
+                config.CreateMap<OrderHeaderDto, CartHeaderDto>()
+                .ForMember(dest=>dest.CartTotal, u=>u.MapFrom(src=>src.OrderTotal)).ReverseMap();
+
+                config.CreateMap<CartDetailsDto, OrderDetailsDto>()
+                .ForMember(dest => dest.ProductName, u => u.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.Price, u => u.MapFrom(src => src.Product.Price));
+
+                config.CreateMap<OrderDetailsDto, CartDetailsDto>();
+
+                config.CreateMap<OrderHeader, OrderHeaderDto>().ReverseMap();
+                config.CreateMap<OrderDetailsDto, OrderDetails>().ReverseMap();
+
+            });
+            return mappingConfig;
+        }
+    }
+```
+
 ## Section 13: Section 13 Stripe Checkout
 ### Stripe Flow and Stripe DTO [128]
 ### Order Confirmation Page [129]
