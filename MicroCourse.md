@@ -3373,6 +3373,9 @@ public class StripeRequestDto
 ```
 
 ### Order Confirmation Page [129]
+
+https://localhost:7167/cart/confirmation?orderId=23
+
 ### Configure Stripe in Project [130]
 ### Create Stripe Session in Order API [131]
 ### Call Stripe Session Endpoint from Web Project [132]

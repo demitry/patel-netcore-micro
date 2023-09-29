@@ -51,7 +51,11 @@ namespace Mango.Web.Controllers
 
             return View(cart);
         }
-
+        
+        public async Task<IActionResult> Confirmation(int orderId)
+        {
+            return View(orderId);
+        }
         
         public async Task<IActionResult> Remove(int cartDetailsId)
         {
@@ -109,7 +113,6 @@ namespace Mango.Web.Controllers
             }
             return View();
         }
-
 
         private async Task<CartDto> LoadCartDtoBasedOnLoggedInUser()
         {
