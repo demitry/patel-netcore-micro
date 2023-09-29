@@ -3351,7 +3351,27 @@ What are in secrets?
 ```
 
 ## Section 13: Section 13 Stripe Checkout
+
 ### Stripe Flow and Stripe DTO [128]
+
+For Stripe Checkout we will require:
+- SessionId
+- URL
+- Back / Cancel URL
+- Approved URL
+- OrderHeaderDTO
+
+```cs
+public class StripeRequestDto
+{
+    public string StripeSessionUrl { get; set; }
+    public string StripeSessionId { get; set; }
+    public string ApprovedUrl { get; set; }
+    public string CancelUrl { get; set; }
+    public OrderHeaderDto OrderHeader { get; set; }
+}
+```
+
 ### Order Confirmation Page [129]
 ### Configure Stripe in Project [130]
 ### Create Stripe Session in Order API [131]
